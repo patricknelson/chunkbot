@@ -1,6 +1,9 @@
 /**
  * ChunkBot: Experimental plug.dj bot.
  *
+ * To run, use the following bookmarklet URL in your bookmarks bar:
+ * javascript:var ChunkBotURL='http://server/bot.js';$.getScript(ChunkBotURL);
+ *
  * Copyright (c) 2013 Patrick Nelson
  * Dual licensed under the MIT and GPL licenses:
  * http://www.opensource.org/licenses/mit-license.php
@@ -22,7 +25,7 @@ var ChunkBot = {
 	 */
 	config: {
 		// Boilerplate configuration. Everything else, please set via config.js.
-		baseURL: "https://rawgithub.com/patricknelson/chunkbot/master/",
+		baseURL: "",
 		rateLimit: 1500, // Limits bot output in milliseconds.
 		mods: [],
 
@@ -78,6 +81,10 @@ var ChunkBot = {
 	 * @param howOften		Use range of 1 - 10 where 1 is rarely and 10 is every time. Default is 10.
 	 */
 	say: function(text, howOften) {
+		// Don't say anything if there's nothing to say.
+		if (typeof text == "undefined") return;
+		if (text == "") return;
+
 		// Populate an array of random yes/no responses to the question of "how often?" depending on the likelihood given.
 		if (typeof howOften == "undefined") howOften = 10;
 		var oftenAnswers = [];
@@ -181,6 +188,20 @@ var ChunkBot = {
 	 * Initialize bot.
 	 */
 	init: function() {
+		// Attempt to configure base URL based on ChunkBotURL global.
+		if (typeof ChunkBotURL != "undefined") {
+			urlParts = ChunkBotURL.split("/");
+			urlParts.pop();
+			this.config.baseURL = urlParts.join("/") + "/";
+		}
+
+		// Ensure a base URL has been defined.
+		if (this.config.baseURL == "") {
+			alert("Cannot load ChunkBot: No base URL has been defined.\n\nPlease set the URL to this bot via 'ChunkButURL' first before initializing.");
+			return;
+		}
+
+
 		// Load separately stored configuration.
 		this.load("config.js");
 
