@@ -272,8 +272,8 @@ var ChunkBot = {
 	 */
 	processForceSkip: function() {
 		var remaining = API.getTimeRemaining();
-		if (remaining % 30 == 0) console.log("Time remaining: " + remaining + " seconds.");
-		if (remaining <= 0) {
+		if (remaining % 30 == 0 && remaining > 0) console.log("Time remaining: " + remaining + " seconds.");
+		if (remaining <= 0 && typeof API.getDJ() != "undefined") {
 			ChunkBot.skip();
 			console.log("Skipped song.");
 		}
