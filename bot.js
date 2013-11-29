@@ -416,10 +416,27 @@ var ChunkBot = {
 
 			// Output stats, if desired.
 			if (ChunkBot.config.outputSongStats) {
+				var firstStats = ChunkBot.getStatsMessage(1);
+
+				// A really bastardized way of waiting 5 seconds :)
+				var delay = 50;
+				var maxIterations = 100;
+				var numIterations = 0;
+
+				var watchStats = function() {
+					var currentStats = ChunkBot.getStatsMessage(1);
+					numIterations++;
+					if (currentStats != firstStats || numIterations > maxIterations) {
+						// Stats have finally changed, so output message now.
+						ChunkBot.say(currentStats);
+					} else {
+						// Wait a little bit longer.
+						setTimeout(watchStats, delay);
+					}
+				};
+
 				// Trigger message to run in a little while to give it time to load.
-				setTimeout(function() {
-					ChunkBot.say(ChunkBot.getStatsMessage(1));
-				}, 1000);
+				setTimeout(watchStats, delay);
 			}
 		}
 	},
