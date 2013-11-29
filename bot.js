@@ -298,6 +298,11 @@ var ChunkBot = {
 		var history = API.getHistory();
 		var last = [];
 
+		// Get current media "cid" to ensure the first item in our list isn't the current song.
+		var currentMedia = API.getMedia();
+		var firstMedia = history[0].media;
+		if (currentMedia.cid == firstMedia.cid) history.shift();
+
 		number = Math.min(number, 5, history.length);
 		for(i = 0; i < number; i++) {
 			var item =  history[i];
