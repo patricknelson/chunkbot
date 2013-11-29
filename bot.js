@@ -410,7 +410,12 @@ var ChunkBot = {
 			console.log("[DJ Advance]");
 
 			// Output stats, if desired.
-			if (ChunkBot.config.outputSongStats) ChunkBot.say(ChunkBot.getStatsMessage(1));
+			if (ChunkBot.config.outputSongStats) {
+				// Trigger message to run in a little while to give it time to load.
+				setTimeout(function() {
+					ChunkBot.say(ChunkBot.getStatsMessage(1));
+				}, 1000);
+			}
 		}
 	},
 
