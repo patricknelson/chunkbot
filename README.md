@@ -5,6 +5,12 @@ ChunkBot
 
 To demo this bot, [visit this page](https://rawgithub.com/patricknelson/chunkbot/master/index.html) and set it up as a bookmarklet. Otherwise, you can host the bot JavaScript code on your own server. If you do, be sure to edit the `config.js` or `config-custom.js` files to add your own commands, if you want.
 
+**Important:** The bot must be loaded using the `ChunkBotURL` variable in a bookmarklet so that the bot can then autoload its configuration and external files. For example:
+
+    javascript:var ChunkBotURL='http://server/bot.js';$.getScript(ChunkBotURL);  
+
+Otherwise, you will have to set the `ChunkBot.config.baseURL` setting directly in the `bot.js` file.
+
 ## Example Commands ##
 
 Example **full text** match (case insensitive). You can chain multiple commands together as well.
