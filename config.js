@@ -78,8 +78,8 @@ ChunkBot.addCommand({ // Test command.
 ChunkBot.addCommand({ // List all configured commands.
 	text: "bot commands",
 	callback: function(data) {
-		// Only respond to current user.
-		if (data.from != ChunkBot.config.botUser) return;
+		// Only respond to admin
+		if (!ChunkBot.isAdmin(data.from)) return;
 
 		// Build list of all commands currently available.
 		var availCommands = [];
@@ -169,6 +169,16 @@ ChunkBot.addCommand({ // Various binary settings we can turn on or off.
 					}
 				} else {
 					message = "Automatic force skipping is already " + (enable ? "enabled" : "disabled") + ".";
+				}
+				ChunkBot.say(message);
+				break;
+
+			case "stats":
+				if (ChunkBot.config.outputSongStats != enable) {
+					ChunkBot.config.outputSongStats = enable;
+					message = "Ok, song stats will " + (enable ? "now" : "no longer") + " be output after each DJ plays.";
+				} else {
+					message = "Song stats are already " + (enable ? "enabled" : "disabled") + ".";
 				}
 				ChunkBot.say(message);
 				break;
