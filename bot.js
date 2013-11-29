@@ -224,10 +224,10 @@ var ChunkBot = {
 
 		// Apply vote now.
 		if (direction == 1) {
-			$("#woot").click();
+			woot.click();
 
 		} else if (direction == -1) {
-			$("#meh").click();
+			meh.click();
 		}
 
 		return true;
