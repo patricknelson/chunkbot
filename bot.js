@@ -39,7 +39,9 @@ var ChunkBot = {
 		messageQueue: [], // List of things this bot wants to say.
 		messageQueueInterval: null,
 		previousOutput: [], // List of things already said -- limited to a small number (prevents self triggering).
-		forceSkipInterval: null
+		forceSkipInterval: null,
+		lastSkipTime: null, // Indicates the last time a skip was performed (UNIX timestamp).
+		skipDelay: 1000 // Amount of milliseconds to wait before allowing another skip.
 	},
 
 
@@ -95,7 +97,7 @@ var ChunkBot = {
 		// Populate an array of random yes/no responses to the question of "how often?" depending on the likelihood given.
 		if (typeof howOften == "undefined") howOften = 10;
 		var oftenAnswers = [];
-		for(i = 1; i <= 10; i++) {
+		for(var i = 1; i <= 10; i++) {
 			oftenAnswers.push((howOften > 0 ? 1 : 0));
 			howOften--;
 		}
@@ -115,13 +117,13 @@ var ChunkBot = {
 	/**
 	 * Say something random from the array of provided choices.
 	 *
-	 * @param reponseArray
+	 * @param responseArray
 	 * @param howOften		See the say() method.
 	 */
-	sayRandom: function(reponseArray, howOften) {
+	sayRandom: function(responseArray, howOften) {
 		// Select a random response.
-		var randomIndex = Math.floor(Math.random() * reponseArray.length);
-		ChunkBot.say(reponseArray[randomIndex], howOften);
+		var randomIndex = Math.floor(Math.random() * responseArray.length);
+		ChunkBot.say(responseArray[randomIndex], howOften);
 	},
 
 
@@ -189,7 +191,7 @@ var ChunkBot = {
 	isAdmin: function(username) {
 		// See if user is in the manually coded array of admins.
 		var admins = ChunkBot.getAdmins();
-		if (admins.indexOf(username.toLowerCase()) != -1) return true;
+		return (admins.indexOf(username.toLowerCase()) != -1);
 	},
 
 
@@ -271,12 +273,13 @@ var ChunkBot = {
 	 * Actually performs the forced skipping.
 	 */
 	processForceSkip: function() {
+		// Don't worry about doing anything if there's no DJ on stage or if a DJ is on stage but the media object hasn't YET loaded (i.e. just stepped up from having no DJ).
+		if (typeof API.getDJ() == "undefined" || typeof API.getMedia() == "undefined") return;
+
+		// Get remaining time and skip if the song is over.
 		var remaining = API.getTimeRemaining();
 		if (remaining % 30 == 0 && remaining > 0) console.log("Time remaining: " + remaining + " seconds.");
-		if (remaining <= 0 && typeof API.getDJ() != "undefined") {
-			ChunkBot.skip();
-			console.log("Skipped song.");
-		}
+		if (remaining <= 0) ChunkBot.skip();
 	},
 
 
@@ -284,7 +287,17 @@ var ChunkBot = {
 	 * Skips the currently playing song.
 	 */
 	skip: function() {
+		// Don't worry about doing anything if there's no DJ on stage or if a DJ is on stage but the media object hasn't YET loaded (i.e. just stepped up from having no DJ).
+		if (typeof API.getDJ() == "undefined" || typeof API.getMedia() == "undefined") return;
+
+		// Ensure we haven't just skipped recently.
+		var skipThreshold = ChunkBot.config.lastSkipTime + ChunkBot.config.skipDelay;
+		if ((new Date()).getTime() < skipThreshold) return;
+
+		// Perform skip and track.
 		API.moderateForceSkip();
+		console.log("Skipped song.");
+		ChunkBot.config.lastSkipTime = (new Date()).getTime();
 	},
 
 
@@ -301,10 +314,10 @@ var ChunkBot = {
 		// Get current media "cid" to ensure the first item in our list isn't the current song.
 		var currentMedia = API.getMedia();
 		var firstMedia = history[0].media;
-		if (currentMedia.cid == firstMedia.cid) history.shift();
+		if (typeof currentMedia != "undefined" && currentMedia.cid == firstMedia.cid) history.shift();
 
 		number = Math.min(number, 5, history.length);
-		for(i = 0; i < number; i++) {
+		for(var i = 0; i < number; i++) {
 			var item =  history[i];
 			var media = item.media;
 			var user = item.user;
@@ -335,7 +348,7 @@ var ChunkBot = {
 
 		// Generate message.
 		var messageParts = [];
-		for(i in last) {
+		for(var i in last) {
 			var song = last[i];
 			var message = song.user + " played " + song.song + " (" + song.woot +  " :+1: / " + song.meh + " :-1:)";
 			messageParts.push(message);
@@ -388,7 +401,7 @@ var ChunkBot = {
 			if (data.from == ChunkBot.config.botUser && ChunkBot.hasSaid(data.message)) return;
 
 			// Go through commands to see if a command matches this message and should be triggered.
-			for(index in ChunkBot.config.commands) {
+			for(var index in ChunkBot.config.commands) {
 				var command = ChunkBot.config.commands[index];
 				var found = false;
 				var matches = [];
@@ -414,30 +427,26 @@ var ChunkBot = {
 		DJ_ADVANCE: function(data) {
 			console.log("[DJ Advance]");
 
-			// Output stats, if desired.
-			if (ChunkBot.config.outputSongStats) {
-				var firstStats = ChunkBot.getStatsMessage(1);
-
-				// A really bastardized way of waiting 5 seconds :)
-				var delay = 50;
-				var maxIterations = 100;
-				var numIterations = 0;
-
-				var watchStats = function() {
-					var currentStats = ChunkBot.getStatsMessage(1);
-					numIterations++;
-					if (currentStats != firstStats || numIterations > maxIterations) {
-						// Stats have finally changed, so output message now.
-						ChunkBot.say(currentStats);
-					} else {
-						// Wait a little bit longer.
-						setTimeout(watchStats, delay);
-					}
-				};
-
-				// Trigger message to run in a little while to give it time to load.
-				setTimeout(watchStats, delay);
+			// Wait a little while first before allowing a force skip this gives the API.getTimeRemaining() to start returning valid results.
+			if (ChunkBot.config.forceSkip) {
+				ChunkBot.forceSkip(false);
+				setTimeout(function() {
+					ChunkBot.forceSkip(true);
+				}, 5000);
 			}
+		},
+
+		// History update.
+		HISTORY_UPDATE: function(data) {
+			console.log("[History Update]");
+
+			// Output stats, if desired.
+			if (ChunkBot.config.outputSongStats) ChunkBot.say(ChunkBot.getStatsMessage(1));
+		},
+
+		// Waiting list changes.
+		WAIT_LIST_UPDATE: function(users) {
+
 		}
 	},
 
@@ -450,7 +459,7 @@ var ChunkBot = {
 		ChunkBot.removeEvents();
 
 		// Delegate API event hooks.
-		for(event in ChunkBot.events) {
+		for(var event in ChunkBot.events) {
 			// Attach fresh hook.
 			API.on(API[event], this.events[event]);
 		}
@@ -461,7 +470,7 @@ var ChunkBot = {
 	 * Detaches configured event hooks.
 	 */
 	removeEvents: function() {
-		for(event in ChunkBot.events) {
+		for(var event in ChunkBot.events) {
 			// Remove any existing hooks.
 			API.off(API[event]);
 		}
@@ -489,7 +498,7 @@ var ChunkBot = {
 	 */
 	cleanUp: function() {
 		clearInterval(ChunkBot.config.messageQueueInterval);
-		clearInterval(ChunkBot.config.forceSkipInterval);
+		ChunkBot.forceSkip(false);
 		ChunkBot.removeEvents();
 	},
 
@@ -501,6 +510,7 @@ var ChunkBot = {
 		console.log("Unloading bot now.");
 		ChunkBot.processMessageQueue();
 		ChunkBot.cleanUp();
+		ChunkBot = null;
 	},
 
 
