@@ -193,6 +193,17 @@ ChunkBot.addCommand({ // Various binary settings we can turn on or off.
 		}
 		ChunkBot.skip();
 	}
+}).addCommand({
+	text: /^bot boot @?(.*?)( (for|because) (.+))?$/i,
+	callback: function(data, matches) {
+		// Only respond to admin.
+		if (!ChunkBot.isAdmin(data.from)) return;
+
+		// Get desired username and tell bot to boot them.
+		var username = matches[1];
+		var reason = matches[4];
+		ChunkBot.boot(username, reason)
+	}
 });
 
 

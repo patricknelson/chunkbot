@@ -378,6 +378,51 @@ var ChunkBot = {
 	},
 
 
+	/**
+	 * Provides capability to boot a user by proxy of banning and unbanning very quickly (since there is no native
+	 * "boot" functionality).
+	 *
+	 * @param username
+	 */
+	boot: function(username, reason) {
+		// Convert to lowercase for quick/accurate comparison.
+		username = username.toLowerCase();
+		if (typeof reason == "undefined") reason = "[no reason given]";
+
+		// Suffix reason with temporary ban, since this isn't really permanent.
+		reason += "  (temporary ban)";
+
+		// Don't boot yourself.
+		if (username == ChunkBot.config.botUser.toLowerCase()) {
+			ChunkBot.say("I'm not going to ban myself, sorry.");
+			return;
+		}
+
+		// Go through users and look for a match in the username.
+		console.log("Attempting to boot '" + username + "' for '" + reason + "'.");
+		var users = API.getUsers();
+		for(var i in users) {
+			var user = users[i];
+			if (user.username.toLowerCase() == username) {
+				// Get user's ID and perform ban.
+				var userID = user.id;
+				API.moderateBanUser(userID, reason);
+				ChunkBot.say("Booted " + user.username + " (" + userID + ") for '" + reason + "'");
+
+				// Set timeout to unban user after a few seconds.
+				setTimeout(function() {
+					API.moderateUnbanUser(userID);
+				}, 2000);
+
+				return;
+			}
+		}
+
+		// User was not found.
+		console.log("User not found!");
+	},
+
+
 	/****************************
 	 ** INTERNAL FUNCTIONALITY **
 	 ****************************/
@@ -447,7 +492,18 @@ var ChunkBot = {
 		// Waiting list changes.
 		WAIT_LIST_UPDATE: function(users) {
 
+		},
+
+		// User enter room.
+		USER_JOIN: function(user) {
+			console.log("[User Enter] " + user.username);
+		},
+
+		// User leave room.
+		USER_LEAVE: function(user) {
+			console.log("[User Leave] " + user.username);
 		}
+
 	},
 
 
