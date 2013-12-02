@@ -73,6 +73,15 @@ ChunkBot.addCommand({ // Test command.
 });
 
 
+// Special command to allow bot to respond to people addressing it.
+ChunkBot.addCommand({
+	text: new RegExp(".*\\b@?" + API.getUser().username + "\\b.*", "i"),
+	hide: true,
+	callback: function(data) {
+		ChunkBot.say("Type 'bot commands' for a list of my commands.");
+	}
+});
+
 
 // Administrative commands.
 ChunkBot.addCommand({ // List all configured commands.
