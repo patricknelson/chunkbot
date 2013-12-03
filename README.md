@@ -58,7 +58,8 @@ You can even match chat comments based on **regular expressions** (currently req
 
 ## To Do ##
 
-* History: Find way to build own history via monitoring API.getMedia() instead of relying on the sometimes buggy API.getHistory() method.
+* **DJ Idle Times:** Add commands “bot dj times” to get wait list idle time, derived from last time seen in chat, and “bot enable/disable anti-idle” to require DJ’s to chat at least once every 10min in order to remain in the waiting list (if enabled). *Higher priority.*
+* **History:** Find way to build own history via monitoring API.getMedia() instead of relying on the sometimes buggy API.getHistory() method.
 * Add command `bot openbar` to allow serving of drinks to anyone for 30 seconds.
 
 
