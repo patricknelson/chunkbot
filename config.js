@@ -77,6 +77,28 @@ ChunkBot.addCommand({ // Test command.
 });
 
 
+// Fun "bot drink" command.
+ChunkBot.addCommand({
+	text: /bot drink(s)?/i,
+	callback: function(data, matches) {
+		if (!ChunkBot.isAdmin(data.from)) {
+			ChunkBot.sayRandom([
+				"Do you think this is a fucking game @" + data.from + "? I aint woobot mother fucker.",
+				"Get your own fucking drink, @" + data.from + "!",
+				"Go away @" + data.from + ", I don't like you."
+			]);
+		} else {
+			var drink = (matches[1] == "s" ? ":beers:" : ":beer:");
+			ChunkBot.sayRandom([
+				"Anything for you, bro! " + drink,
+				"You got it. " + drink,
+				"Alright! " + drink,
+				"Cheers, mate! " + drink
+			]);
+		}
+	}
+});
+
 
 // Administrative commands.
 ChunkBot.addCommand({ // List all configured commands.
