@@ -55,3 +55,25 @@ You can even match chat comments based on **regular expressions** (currently req
 			], 5);
 		}
 	});
+
+## To Do ##
+
+* History: Find way to build own history via monitoring API.getMedia() instead of relying on the sometimes buggy API.getHistory() method.
+* Add command `bot openbar` to allow serving of drinks to anyone for 30 seconds.
+
+
+## Change Log ##
+
+* `v0.0.3`
+ + Chrome user script.
+ + Disable easter eggs by default.
+ + Abstraction to retrieve getUsername() (so configs don't rely on API)
+ + Now using "ChunkBotConfig" global to allow direct override of config after config is loaded.
+* `v0.02`
+ + Added force skip functionality (skips song after it finishes playing if not skipped by system or user).
+ + Ability to set admin users and automatically add admins based on room moderators/staff (manager and above).
+ + Output bot identification on load (a.k.a. "bot ident").
+ + Ability to vote up/down songs (woot/meh).
+ + Better chat message detection to prevent triggering commands on own output.
+ + Added a lot administrative and moderator commands! 
+* `v0.0.1` - Inception.
