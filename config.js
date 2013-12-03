@@ -20,6 +20,10 @@
 // Output song statistics after each play?
 //ChunkBot.config.outputSongStats = true;
 
+// Allow easter eggs by default?
+//ChunkBot.config.easterEggs = true;
+
+
 
 /******************
  * SETUP COMMANDS *
@@ -44,7 +48,7 @@ ChunkBot.addCommand({ // Test command.
 	text: "bot test",
 	hide: true,
 	callback: function(data) {
-		// Only respond to admin.
+		// Only respond to admins.
 		if (!ChunkBot.isAdmin(data.from)) return;
 
 		// Respond saying test worked.
@@ -72,15 +76,6 @@ ChunkBot.addCommand({ // Test command.
 	}
 });
 
-
-// Special command to allow bot to respond to people addressing it directly.
-ChunkBot.addCommand({
-	text: new RegExp(".*@" + API.getUser().username + "\\b.*", "i"),
-	hide: true,
-	callback: function(data) {
-		ChunkBot.say("Type 'bot commands' for a list of my commands.");
-	}
-});
 
 
 // Administrative commands.
@@ -134,7 +129,7 @@ ChunkBot.addCommand({ // List all configured commands.
 // Example regular expression-based commands. Second parameter of say() and sayRandom() indicates how often to respond.
 ChunkBot.addCommand({
 	text: /.*\b(lol|hehe?|haha?)\b.*/i,
-	title: "kill joy (lol, hehe, ...)",
+	title: "kill joy (easter egg for lol, hehe, ...)",
 	callback: function(data) {
 		if (!ChunkBot.eggs()) return;
 		ChunkBot.sayRandom([
@@ -146,6 +141,7 @@ ChunkBot.addCommand({
 	}
 }).addCommand({ // ... in case user responds to the "ho ho ho" remark.
 	text: /.*\bho ho ho\b.*/i,
+	hide: true,
 	callback: function(data) {
 		if (!ChunkBot.eggs()) return;
 		ChunkBot.say("Are you mocking me?");
@@ -229,4 +225,4 @@ ChunkBot.addCommand({ // Various binary settings we can turn on or off.
 
 
 // Incorporate custom configuration (outside of git repo), if available.
-ChunkBot.load("config-custom.js");
+ChunkBot.load("config.custom.js");

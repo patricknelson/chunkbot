@@ -1,5 +1,5 @@
 .idea
 plug-source
-config-custom.js
-bot-custom.js
+config.custom.js
+*.custom.js
 _*

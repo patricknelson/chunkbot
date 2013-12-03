@@ -9,7 +9,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
 
- * @package	ChunkBot v0.2
+ * @package	ChunkBot v0.3
  * @author	Patrick Nelson (pat@catchyour.com), a.k.a. chunk_split() on plug.dj
  */
 
@@ -28,9 +28,9 @@ var ChunkBot = {
 		rateLimit: 1500, // Limits bot output in milliseconds.
 		autoAdminStaff: true, // Indicates that staff at manager level or higher are automatically admins of this bot.
 		botIdent: "", // What the bot says on startup.
-		forceSkip: true, // If songs should be forced to skip after they are finished (must be a moderator).
+		forceSkip: true, // If songs should be forced to skip after they are finished (must be a moderator). So useful, this is enabled by default.
 		outputSongStats: false, // If the bot should log stats about the last song played in the chat room.
-		easterEggs: true, // Enable/disable any custom easter eggs.
+		easterEggs: false, // Enable/disable any custom easter eggs.
 
 		// These things below you shouldn't change in the config at all.
 		admins: [], // Array of admin usernames who run admin-only commands. By default, current bot is included. Use addAdmin() to add admins to this list.
@@ -434,6 +434,16 @@ var ChunkBot = {
 	},
 
 
+	/**
+	 * Returns currently logged in user's username.
+	 *
+	 * @returns {string}
+	 */
+	getUsername: function() {
+		return API.getUser().username;
+	},
+
+
 	/****************************
 	 ** INTERNAL FUNCTIONALITY **
 	 ****************************/
@@ -602,11 +612,17 @@ var ChunkBot = {
 		this.setupEvents();
 
 		// Determine current username.
-		this.config.botUser = API.getUser().username;
+		this.config.botUser = this.getUsername();
 		this.addAdmin(ChunkBot.config.botUser);
+
+		// Setup overriding configuraiton, if any.
+		var ChunkBotConfig = (typeof window.ChunkBotConfig != "undefined" ? window.ChunkBotConfig : {});
 
 		// Load separately stored configuration.
 		this.load("config.js", function() {
+			// Override loaded configuration, if any globally set config exists.
+			for(var i in ChunkBotConfig) ChunkBot.config[i] = ChunkBotConfig[i];
+
 			// Say something in chat to advertise successful load.
 			ChunkBot.say(ChunkBot.config.botIdent);
 			console.log("Loaded bot configuration:");
