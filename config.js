@@ -74,6 +74,21 @@ ChunkBot.addCommand({ // Test command.
 		if (typeof number == "undefined") number = 1;
 		ChunkBot.say(ChunkBot.getStatsMessage(number));
 	}
+}).addCommand({
+	text: "bot time",
+	callback: function(data) {
+		// Get current elapsed time in hours, minutes and seconds.
+		var totalSeconds = ChunkBot.elapsed();
+		var hours = Math.floor(totalSeconds / 60 / 60);
+		var minutes = Math.floor(totalSeconds / 60);
+		var seconds = totalSeconds % 60;
+
+		// Generate message.
+		var message = "";
+		if (hours > 0) message = hours + ":" + (minutes < 10 ? "0" : "");
+		message += minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+		ChunkBot.say("Time elapsed: " + message + " @" + data.from);
+	}
 });
 
 

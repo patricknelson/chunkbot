@@ -444,6 +444,16 @@ var ChunkBot = {
 	},
 
 
+	/**
+	 * Returns time elapsed on current song.
+	 *
+	 * @returns {int}
+	 */
+	elapsed: function() {
+		return API.getTimeElapsed();
+	},
+
+
 	/****************************
 	 ** INTERNAL FUNCTIONALITY **
 	 ****************************/
