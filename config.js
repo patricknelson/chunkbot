@@ -136,6 +136,7 @@ ChunkBot.addCommand({
 	text: /.*\b(lol|hehe?|haha?)\b.*/i,
 	title: "kill joy (lol, hehe, ...)",
 	callback: function(data) {
+		if (!ChunkBot.eggs()) return;
 		ChunkBot.sayRandom([
 			"Hahaha @" + data.from + ", oh man!",
 			"ho ho ho",
@@ -146,6 +147,7 @@ ChunkBot.addCommand({
 }).addCommand({ // ... in case user responds to the "ho ho ho" remark.
 	text: /.*\bho ho ho\b.*/i,
 	callback: function(data) {
+		if (!ChunkBot.eggs()) return;
 		ChunkBot.say("Are you mocking me?");
 	}
 });
@@ -155,7 +157,7 @@ ChunkBot.addCommand({
 // Built-in room moderation commands.
 ChunkBot.addCommand({ // Various binary settings we can turn on or off.
 	text: /bot (enable|disable) (.*)/i,
-	title: "bot (enable|disable) (setting)",
+	title: "bot (enable|disable) (skip|stats|eggs)",
 	callback: function(data, matches) {
 		// Only respond to admin.
 		if (!ChunkBot.isAdmin(data.from)) {
@@ -188,6 +190,16 @@ ChunkBot.addCommand({ // Various binary settings we can turn on or off.
 					message = "Ok, song stats will " + (enable ? "now" : "no longer") + " be output after each DJ plays.";
 				} else {
 					message = "Song stats are already " + (enable ? "enabled" : "disabled") + ".";
+				}
+				ChunkBot.say(message);
+				break;
+
+			case "eggs":
+				if (ChunkBot.config.easterEggs != enable) {
+					ChunkBot.config.easterEggs = enable;
+					message = "Ok, easter eggs are " + (enable ? "now" : "no longer") + " enabled.";
+				} else {
+					message = "Easter eggs are already " + (enable ? "enabled" : "disabled") + ".";
 				}
 				ChunkBot.say(message);
 				break;

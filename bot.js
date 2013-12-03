@@ -30,6 +30,7 @@ var ChunkBot = {
 		botIdent: "", // What the bot says on startup.
 		forceSkip: true, // If songs should be forced to skip after they are finished (must be a moderator).
 		outputSongStats: false, // If the bot should log stats about the last song played in the chat room.
+		easterEggs: true, // Enable/disable any custom easter eggs.
 
 		// These things below you shouldn't change in the config at all.
 		admins: [], // Array of admin usernames who run admin-only commands. By default, current bot is included. Use addAdmin() to add admins to this list.
@@ -420,6 +421,16 @@ var ChunkBot = {
 
 		// User was not found.
 		console.log("User not found!");
+	},
+
+
+	/**
+	 * Quick shortcut for returning current easter egg configuration.
+	 *
+	 * @returns {boolean}
+	 */
+	eggs: function() {
+		return ChunkBot.config.easterEggs;
 	},
 
 
