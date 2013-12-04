@@ -249,6 +249,7 @@ ChunkBot.addCommand({ // Various binary settings we can turn on or off.
 	}
 }).addCommand({
 	text: /^bot boot @?(.*?)( (for|because) (.+))?$/i,
+	title: "bot boot @username for (reason)",
 	callback: function(data, matches) {
 		// Only respond to admin.
 		if (!ChunkBot.isAdmin(data.from)) return;
