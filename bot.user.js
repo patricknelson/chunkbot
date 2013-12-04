@@ -48,10 +48,10 @@ $(function(){
 
 				// Load any persisted settings while applying current override configuration, since this is a page reload.
 				if (config) {
-					// Reset all configuration information EXCEPT for arrays.
+					// Reset all configuration information EXCEPT for commands.
 					var newConfig = {};
 					for(var i in config) {
-						if (config[i] instanceof Array) continue;
+						if (i == "commands") continue;
 						newConfig[i] = config[i];
 					}
 

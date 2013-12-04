@@ -77,17 +77,30 @@ ChunkBot.addCommand({ // Test command.
 }).addCommand({
 	text: "bot time",
 	callback: function(data) {
-		// Get current elapsed time in hours, minutes and seconds.
-		var totalSeconds = ChunkBot.elapsed();
-		var hours = Math.floor(totalSeconds / 60 / 60);
-		var minutes = Math.floor(totalSeconds / 60);
-		var seconds = totalSeconds % 60;
+		ChunkBot.say("Time elapsed: " + ChunkBot.formatSeconds(ChunkBot.elapsed()) + " @" + data.from);
+	}
+}).addCommand({
+	text: "bot dj times",
+	callback: function(data) {
+		// Admin functionality only.
+		if (!ChunkBot.isAdmin(data.from)) return;
 
-		// Generate message.
-		var message = "";
-		if (hours > 0) message = hours + ":" + (minutes < 10 ? "0" : "");
-		message += minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
-		ChunkBot.say("Time elapsed: " + message + " @" + data.from);
+		// Generate message based on the list of users in the room and when they were list seen.
+		var users = ChunkBot.getDjTimes();
+		var messageParts = [];
+		var now = (new Date()).getTime();
+		for(var i in users) {
+			var user = users[i];
+			var timeOut = "?";
+			if (user.time > 0) {
+				var timeDiff = Math.floor((now - user.time) / 1000);
+				timeOut = ChunkBot.formatSeconds(timeDiff);
+			}
+			messageParts.push(user.username + ": " + timeOut);
+		}
+
+		// Output generated message.
+		ChunkBot.say(messageParts.join(" :zap: "));
 	}
 });
 

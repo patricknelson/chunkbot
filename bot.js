@@ -44,7 +44,7 @@ var ChunkBot = {
 		lastSkipTime: null, // Indicates the last time a skip was performed (UNIX timestamp).
 		skipDelay: 1000, // Amount of milliseconds to wait before allowing another skip.
 		idleInterval: null,
-		idleTimes: [] //
+		lastSeen: {} // Used to maintain the array of users in chat and when they've last been seen. Maintained via idleInterval.
 	},
 
 
@@ -313,6 +313,57 @@ var ChunkBot = {
 
 
 	/**
+	 * Simply runs every so often to maintain list of users in chat to watch.
+	 */
+	processIdle: function() {
+		// Start with an empty object of users.
+		var lastSeen = {};
+		var users = API.getUsers();
+		for(var i in users) {
+			// Use the ID as the object key.
+			var user = users[i];
+			var id = user.id;
+
+			// See if we already have a time for this user.
+			var time = 0;
+			if (typeof ChunkBot.config.lastSeen[id] != "undefined") time = ChunkBot.config.lastSeen[id].time;
+
+			// Update current last object.
+			lastSeen[id] = {
+				username: user.username,
+				time: time
+			};
+		}
+
+		// Persist last seen object in config.
+		ChunkBot.config.lastSeen = lastSeen;
+	},
+
+
+	/**
+	 * Returns last seen data based only on the current DJ and users in the waiting list.
+	 *
+	 * @returns {{}}
+	 */
+	getDjTimes: function() {
+		// Get users in waiting list
+		var users = API.getWaitList();
+		if (API.getDJ()) users.unshift(API.getDJ()); // Add DJ to top of list.
+
+		// Build custom "lastSeen" object.
+		var lastSeen = {};
+		for(var i in users) {
+			// Use the ID as the object key.
+			var user = users[i];
+			var id = user.id;
+			if (typeof ChunkBot.config.lastSeen[id]) lastSeen[id] = ChunkBot.config.lastSeen[id];
+		}
+
+		return lastSeen;
+	},
+
+
+	/**
 	 * Returns an array of objects containing basic song and score info. Returns only the number specified.
 	 *
 	 * @param number
@@ -464,6 +515,26 @@ var ChunkBot = {
 	},
 
 
+	/**
+	 * Consistent method for displaying elapsed/remaining time in seconds.
+	 *
+	 * @param totalSeconds
+	 * @returns {string}
+	 */
+	formatSeconds: function(totalSeconds) {
+		// Get current elapsed time in hours, minutes and seconds.
+		var hours = Math.floor(totalSeconds / 60 / 60);
+		var minutes = Math.floor(totalSeconds / 60);
+		var seconds = totalSeconds % 60;
+
+		// Generate message.
+		var output = "";
+		if (hours > 0) output = hours + ":" + (minutes < 10 ? "0" : "");
+		output += minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+		return output;
+	},
+
+
 	/****************************
 	 ** INTERNAL FUNCTIONALITY **
 	 ****************************/
@@ -479,6 +550,9 @@ var ChunkBot = {
 		CHAT: function(data) {
 			// Log message from user in console.
 			console.log("[Chat] " + data.from + ": " + data.message);
+
+			// Track the time that this user has sent a chat message.
+			if (typeof ChunkBot.config.lastSeen[data.fromID] != "undefined") ChunkBot.config.lastSeen[data.fromID].time = (new Date()).getTime();
 
 			// Ensure bot doesn't trigger a command on itself.
 			if (ChunkBot.config.botUser == "" && data.message == ChunkBot.config.botIdent) ChunkBot.config.botUser = data.from;
@@ -589,19 +663,13 @@ var ChunkBot = {
 	},
 
 
-	processIdle: function() {
-
-
-
-	},
-
-
 	/**
 	 * Destroy any previously defined settings if needed to start over clean again (incase reloading without completely
 	 * reloading the page).
 	 */
 	cleanUp: function() {
 		clearInterval(ChunkBot.config.messageQueueInterval);
+		clearInterval(ChunkBot.config.idleInterval);
 		ChunkBot.forceSkip(false);
 		ChunkBot.removeEvents();
 	},
@@ -662,8 +730,8 @@ var ChunkBot = {
 			// Read config to determine if skipping is enabled by default.
 			ChunkBot.forceSkip(ChunkBot.config.forceSkip);
 
-			// Initialize the DJ idle time monitor.
-			ChunkBot.config.idleInterval = setInterval(ChunkBot.processIdle, 1000);
+			// Start the idle processing loop.
+			ChunkBot.config.idleInterval = setInterval(ChunkBot.processIdle, 3000);
 		});
 	}
 };
