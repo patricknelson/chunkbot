@@ -58,7 +58,9 @@ You can even match chat comments based on **regular expressions** (currently req
 
 ## To Do ##
 
-* **DJ Idle Times:** Add commands “bot dj times” to get wait list idle time, derived from last time seen in chat, and “bot enable/disable anti-idle” to require DJ’s to chat at least once every 10min in order to remain in the waiting list (if enabled). *Higher priority.*
+* General abstraction to set non boolean values (i.e. “bot set (name) (value)”).
+* Ability to set **song time limit** via command “bot set timelimit 10”. 
+* Auto skip if lame: Ability to enforce rule to force skip a song if it receives more “mehs” than “woots” (if over a threshold of “mehs” to prevent trolling). Would need to be enabled/disabled and a meh limit set. *May not be necessary???*
 * **History:** Find way to build own history via monitoring API.getMedia() instead of relying on the sometimes buggy API.getHistory() method.
 * Add command `bot openbar` to allow serving of drinks to anyone for 30 seconds.
 
