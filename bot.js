@@ -42,7 +42,9 @@ var ChunkBot = {
 		previousOutput: [], // List of things already said -- limited to a small number (prevents self triggering).
 		forceSkipInterval: null,
 		lastSkipTime: null, // Indicates the last time a skip was performed (UNIX timestamp).
-		skipDelay: 1000 // Amount of milliseconds to wait before allowing another skip.
+		skipDelay: 1000, // Amount of milliseconds to wait before allowing another skip.
+		idleInterval: null,
+		idleTimes: [] //
 	},
 
 
@@ -103,15 +105,23 @@ var ChunkBot = {
 			howOften--;
 		}
 
-		// Track previous output to prevent triggering on it.
-		ChunkBot.config.previousOutput.push(ChunkBot.normalizeMessage(text));
-
 		// Determine if we're going to go at it THIS time . . .
 		var rand = Math.floor(Math.random() * 10);
 		if (oftenAnswers[rand] == 0) return;
 
-		// Add message to queue.
-		this.config.messageQueue.push(text);
+		// Break long messages into palatable segments that plug.dj won't choke on.
+		var regex = '.{1,251}(\\s|$)|\\S+?(\\s|$)';
+		var textSegments = text.match(new RegExp(regex, "g"));
+		for(var s in textSegments) {
+			// Get segment to drop into queue.
+			var segment = textSegments[s];
+
+			// Track previous output to prevent triggering on it.
+			ChunkBot.config.previousOutput.push(ChunkBot.normalizeMessage(segment));
+
+			// Add message to queue, segment by segment.
+			this.config.messageQueue.push(segment);
+		}
 	},
 
 
@@ -579,6 +589,13 @@ var ChunkBot = {
 	},
 
 
+	processIdle: function() {
+
+
+
+	},
+
+
 	/**
 	 * Destroy any previously defined settings if needed to start over clean again (incase reloading without completely
 	 * reloading the page).
@@ -644,6 +661,9 @@ var ChunkBot = {
 
 			// Read config to determine if skipping is enabled by default.
 			ChunkBot.forceSkip(ChunkBot.config.forceSkip);
+
+			// Initialize the DJ idle time monitor.
+			ChunkBot.config.idleInterval = setInterval(ChunkBot.processIdle, 1000);
 		});
 	}
 };
