@@ -22,7 +22,7 @@ var reloadAfter = 60; // Minutes in which this bot should be automatically reloa
 
 // Configuration parameters to override on AUTO-RELOAD (via reloadAfter above).
 var ChunkBotConfig = {
-	botIdent: "" // Will suppress bot ident on auto-reload.
+	botIdent: "" // Will suppress bot ident on auto-reload and any future resets.
 };
 /****************************
  * END CUSTOM CONFIGURATION *
@@ -30,10 +30,12 @@ var ChunkBotConfig = {
 
 
 $(function(){
+	console.log("[Autoloader initialized]");
+
 	// Watch and wait for the API to become available...
+	var startedWatching = (new Date()).getTime();
 	var watchAPI = setInterval(function() {
-		if (typeof API == "undefined") return;
-		if (API.getUser() && API.getUser().username) {
+		if (typeof API != "undefined" && API.getUser() && API.getUser().username) {
 			// Found API. Give it a few seconds to completely load...
 			clearInterval(watchAPI);
 			setTimeout(function() {
@@ -76,14 +78,23 @@ $(function(){
 				// Setup reload timeout.
 				if (reloadAfter > 0) {
 					setTimeout(function() {
-						// Store current ChunkBot configuration specifically for reload.
-						storeSettings("config", unsafeWindow.ChunkBot.config);
-						unsafeWindow.location.reload();
-
+						reloadBrowser();
 					}, reloadAfter * 1000 * 60);
 				}
 
 			}, 3000);
+		} else {
+			// If we've been watching for 60 seconds and still no joy, let's try reloading again!
+			var now = (new Date()).getTime();
+			var beenWatching = (now - startedWatching) / 1000;
+			var threshold = 60;
+			var remaining = Math.floor(threshold - beenWatching);
+			var warnAt = 20; // remaining.
+			var message = "Waiting for API...";
+			if (remaining <= warnAt) message += " reloading to try again in " + remaining + " seconds.";
+			console.log(message);
+
+			if (beenWatching >= threshold) reloadBrowser();
 		}
 	}, 1000);
 
@@ -94,5 +105,13 @@ $(function(){
 	};
 	var getSettings = function(name) {
 		return JSON.parse(localStorage.getItem(name));
+	};
+
+
+	// Allows reloading browser without losing settings.
+	var reloadBrowser = function() {
+		// Store current ChunkBot configuration specifically for reload.
+		if (typeof unsafeWindow.ChunkBot != "undefined") storeSettings("config", unsafeWindow.ChunkBot.config);
+		unsafeWindow.location.reload();
 	};
 });
