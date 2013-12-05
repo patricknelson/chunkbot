@@ -389,7 +389,8 @@ var ChunkBot = {
 				user: user.username,
 				song: "'" + media.title + "' by '" + media.author + "'",
 				woot: room.positive,
-				meh: room.negative
+				meh: room.negative,
+				grabs: room.curates
 			});
 		}
 
@@ -412,7 +413,7 @@ var ChunkBot = {
 		var messageParts = [];
 		for(var i in last) {
 			var song = last[i];
-			var message = song.user + " played " + song.song + " (" + song.woot +  " :+1: / " + song.meh + " :-1:)";
+			var message = song.user + " played " + song.song + " (" + song.woot +  " :+1: / " + song.meh + " :-1: / " + song.grabs + " :heart:)";
 			messageParts.push(message);
 		}
 
