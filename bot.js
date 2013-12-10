@@ -28,7 +28,7 @@ var ChunkBot = {
 		rateLimit: 1500, // Limits bot output in milliseconds.
 		autoAdminStaff: true, // Indicates that staff at manager level or higher are automatically admins of this bot.
 		botIdent: "", // What the bot says on startup.
-		forceSkip: true, // If songs should be forced to skip after they are finished (must be a moderator). So useful, this is enabled by default.
+		forceSkip: false, // If songs should be forced to skip after they are finished (must be a moderator). So useful, this is enabled by default.
 		outputSongStats: false, // If the bot should log stats about the last song played in the chat room.
 		easterEggs: false, // Enable/disable any custom easter eggs.
 
@@ -525,7 +525,7 @@ var ChunkBot = {
 	formatSeconds: function(totalSeconds) {
 		// Get current elapsed time in hours, minutes and seconds.
 		var hours = Math.floor(totalSeconds / 60 / 60);
-		var minutes = Math.floor(totalSeconds / 60);
+		var minutes = Math.floor((totalSeconds / 60) % 60);
 		var seconds = totalSeconds % 60;
 
 		// Generate message.
