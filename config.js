@@ -55,14 +55,26 @@ ChunkBot.addCommand({ // Test command.
 		ChunkBot.say("Ok, @" + data.from + "... your test worked!");
 	}
 }).addCommand({
-	text: "bot dance",
-	callback: function(data) {
+	text: /.*\bbot\b.*\b(dance|boogy|twerk)\b.*/ig,
+	title: "bot dance",
+	callback: function(data, matches) {
 		if (ChunkBot.vote(1)) {
 			ChunkBot.sayRandom([
 				"I was just about to anyway, @" + data.from + "!",
 				"Alright no problem @" + data.from + "!",
 				"If @" + data.from + " loves this song, so do I!",
-				"Yeah @" + data.from + " this song ROCKS!"
+				"Yeah @" + data.from + " this song ROCKS!",
+				"I shall drop it like it's hot, @" + data.from + "."
+			]);
+		} else {
+			ChunkBot.sayRandom([
+				"I'm already dancin' @" + data.from + ", I canna dance any HARDAH!",
+				"Wow you people are demanding, especially @" + data.from + ".",
+				"Want me to STOP dancing??? @" + data.from,
+				"Hey YOU dance @" + data.from + "!",
+				"I'm already dancing, @" + data.from + ".",
+				"You can't tell me what to do @" + data.from + "!",
+				"Someone already told me to, @" + data.from + "."
 			]);
 		}
 	}
@@ -80,7 +92,7 @@ ChunkBot.addCommand({ // Test command.
 		ChunkBot.say("Time elapsed: " + ChunkBot.formatSeconds(ChunkBot.elapsed()) + " @" + data.from);
 	}
 }).addCommand({
-	text: "bot dj times",
+	text: /bot (djs|dj times)/i,
 	callback: function(data) {
 		// Admin functionality only.
 		if (!ChunkBot.isAdmin(data.from)) return;
