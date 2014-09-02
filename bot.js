@@ -431,8 +431,8 @@ var ChunkBot = {
 	toggle: function(message) {
 		ChunkBot.events.CHAT({
 			chatID: "",
-			from: ChunkBot.config.botUser,
-			fromID: "",
+			un: ChunkBot.config.botUser,
+			uid: "",
 			language: "en",
 			message: message,
 			room: "",
@@ -549,17 +549,21 @@ var ChunkBot = {
 	events: {
 		// Receive message from chat.
 		CHAT: function(data) {
+		    // Augment data object to allow backward compatibility for old "from" and "fromID" properties.
+		    data.from = data.un;
+		    data.fromID = data.uid;
+
 			// Log message from user in console.
-			console.log("[Chat] " + data.from + ": " + data.message);
+			console.log("[Chat] " + data.un + ": " + data.message);
 
 			// Track the time that this user has sent a chat message.
-			if (typeof ChunkBot.config.lastSeen[data.fromID] != "undefined") ChunkBot.config.lastSeen[data.fromID].time = (new Date()).getTime();
+			if (typeof ChunkBot.config.lastSeen[data.uid] != "undefined") ChunkBot.config.lastSeen[data.uid].time = (new Date()).getTime();
 
 			// Ensure bot doesn't trigger a command on itself.
-			if (ChunkBot.config.botUser == "" && data.message == ChunkBot.config.botIdent) ChunkBot.config.botUser = data.from;
+			if (ChunkBot.config.botUser == "" && data.message == ChunkBot.config.botIdent) ChunkBot.config.botUser = data.un;
 
 			// See if this exact message is from this user...
-			if (data.from == ChunkBot.config.botUser && ChunkBot.hasSaid(data.message)) return;
+			if (data.un == ChunkBot.config.botUser && ChunkBot.hasSaid(data.message)) return;
 
 			// Go through commands to see if a command matches this message and should be triggered.
 			for(var index in ChunkBot.config.commands) {
