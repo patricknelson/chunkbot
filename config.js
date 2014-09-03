@@ -122,22 +122,44 @@ ChunkBot.addCommand({ // Test command.
  * OPEN BAR COMMANDS & LOGIC *
  *****************************/
 
-// General settings and etc.
-var openBar = false;
-var openBarSeconds = 60;
-var openBarTimeout;
-var openBarLoop = function() {
-    if (openBarSeconds == 30) ChunkBot.say(":fire: You've got 30 seconds until the bar closes! :fire:");
-    if (openBarSeconds == 10) ChunkBot.say(":fire: Hurry up! Only 10 seconds remain until the bar closes! :fire:");
+var openBar = {
+    // Settings.
+    enabled: false,
+    seconds: 60,
+    countdown: 0,
+    timeout: 0,
 
-    openBarSeconds--;
-    if (openBarSeconds > 0) {
-        openBarTimeout = setTimeout(openBarLoop, 1000)
-    } else {
+    // Functionality.
+    loop: function() {
+        if (this.countdown == 30) ChunkBot.say(":fire: You've got 30 seconds until the bar closes! :fire:");
+        if (this.countdown == 10) ChunkBot.say(":fire: Hurry up! Only 10 seconds remain until the bar closes! :fire:");
+        console.log("Open bar seconds remaining: " + openBar.countdown);
+
+        this.countdown--;
+        if (this.countdown > 0) {
+            this.timeout = setTimeout(function() {
+                openBar.loop();
+            }, 1000)
+        } else {
+            this.stop();
+        }
+    },
+
+    start: function() {
+        ChunkBot.say(":beers: The bar is now open for " + openBar.seconds + " seconds! FREE BEER FOR EVERYONE! Say 'bot drink' or 'bot drinks' to get your free drink. :beers:");
+        this.enabled = true;
+        this.countdown = this.seconds;
+        clearTimeout(this.timeout);
+        this.loop();
+    },
+
+    stop: function () {
+        this.enabled = false;
+        clearTimeout(this.timeout);
         ChunkBot.say(":poop: Alright folks, fun is over. The bar is now closed for business! :poop:");
-        openBar = false;
     }
 };
+
 
 // Open bar commands.
 ChunkBot.addCommand({
@@ -170,16 +192,13 @@ ChunkBot.addCommand({
 
         // Parse command.
         var command = matches[1];
-        if (command == "open" && !openBar) {
+        if (command == "open" && !openBar.enabled) {
             // Announce open bar and set a crappy timer loop.
-            openBar = true;
-            ChunkBot.say(":beers: The bar is now open for " + openBarSeconds + " seconds! FREE BEER FOR EVERYONE! Say 'bot drink' or 'bot drinks' to get your free drink. :beers:");
-            openBarLoop();
+            openBar.start();
 
-        } else if (command == "close" && openBar) {
+        } else if (command == "close" && openBar.enabled) {
             ChunkBot.say(":poop: Well someone is a party pooper. :poop:");
-            openBar = false;
-            clearTimeout(openBarTimeout);
+            openBar.stop();
         }
     }
 });
