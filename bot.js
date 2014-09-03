@@ -44,7 +44,8 @@ var ChunkBot = {
 		lastSkipTime: null, // Indicates the last time a skip was performed (UNIX timestamp).
 		skipDelay: 1000, // Amount of milliseconds to wait before allowing another skip.
 		idleInterval: null,
-		lastSeen: {} // Used to maintain the array of users in chat and when they've last been seen. Maintained via idleInterval.
+		lastSeen: {}, // Used to maintain the array of users in chat and when they've last been seen. Maintained via idleInterval.
+		div: $("<div />") // For utility purposes.
 	},
 
 
@@ -160,11 +161,20 @@ var ChunkBot = {
 		// Convert to lower case.
 		message = message.toLowerCase();
 
-		// Remove entities which typically are used for non alphanumeric chars.
+		// Remove instances of apparent emoji's.
+		message = message.replace(/:[a-z]+:/g, '');
+
+        // Remove HTML code.
+        message = ChunkBot.config.div.html(message).text();
+
+        // Remove entities which typically are used for non alphanumeric chars.
 		message = message.replace(/&[#0-9a-z]{2,5};/ig, "");
 
 		// Remove non alphanumeric chars.
 		message = message.replace(/[^a-z0-9 ]/ig, "");
+
+		// Normalize whitespace.
+        message = message.replace(/[\s]+/g, ' ').trim();
 
 		return message;
 	},
