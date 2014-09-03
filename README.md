@@ -67,6 +67,8 @@ You can even match chat comments based on **regular expressions** (currently req
 
 ## Change Log ##
 
+* `v0.0.4`
+ + New 'maintenance mode' protection to redirect back to original URL of the room in case browser is redirected away for any reason. Will attempt reload/redirect back to room every minute until back online. 
 * `v0.0.3`
  + Chrome user script.
  + Disable easter eggs by default.
