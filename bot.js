@@ -186,7 +186,7 @@ var ChunkBot = {
 		for (i in staff) {
 			var user = staff[i];
 			var username = user.username.toLocaleLowerCase();
-			if (user.permission >= 3 && admins.indexOf(username) == -1) admins.push(username);
+			if (user.role >= 3 && admins.indexOf(username) == -1) admins.push(username);
 		}
 
 		return admins;
