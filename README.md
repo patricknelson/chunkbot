@@ -62,13 +62,13 @@ You can even match chat comments based on **regular expressions** (currently req
 * Ability to set **song time limit** via command “bot set timelimit 10”. 
 * Auto skip if lame: Ability to enforce rule to force skip a song if it receives more “mehs” than “woots” (if over a threshold of “mehs” to prevent trolling). Would need to be enabled/disabled and a meh limit set. *May not be necessary???*
 * **History:** Find way to build own history via monitoring API.getMedia() instead of relying on the sometimes buggy API.getHistory() method.
-* Add command `bot openbar` to allow serving of drinks to anyone for 30 seconds.
 
 
 ## Change Log ##
 
 * `v0.0.4`
- + New 'maintenance mode' protection to redirect back to original URL of the room in case browser is redirected away for any reason. Will attempt reload/redirect back to room every minute until back online. 
+ + New 'maintenance mode' protection to redirect back to original URL of the room in case browser is redirected away for any reason. Will attempt reload/redirect back to room every minute until back online.
+ + Implemented the  `bot open bar` and `bot close bar` commands! Free beer for all (but only when admins grant it).
 * `v0.0.3`
  + Chrome user script.
  + Disable easter eggs by default.

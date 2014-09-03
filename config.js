@@ -117,11 +117,33 @@ ChunkBot.addCommand({ // Test command.
 });
 
 
-// Fun "bot drink" command.
+
+/*****************************
+ * OPEN BAR COMMANDS & LOGIC *
+ *****************************/
+
+// General settings and etc.
+var openBar = false;
+var openBarSeconds = 60;
+var openBarTimeout;
+var openBarLoop = function() {
+    if (openBarSeconds == 30) ChunkBot.say(":fire: You've got 30 seconds until the bar closes! :fire:");
+    if (openBarSeconds == 10) ChunkBot.say(":fire: Hurry up! Only 10 seconds remain until the bar closes! :fire:");
+
+    openBarSeconds--;
+    if (openBarSeconds > 0) {
+        openBarTimeout = setTimeout(openBarLoop, 1000)
+    } else {
+        ChunkBot.say(":poop: Alright folks, fun is over. The bar is now closed for business! :poop:");
+        openBar = false;
+    }
+};
+
+// Open bar commands.
 ChunkBot.addCommand({
 	text: /bot drink(s)?/i,
 	callback: function(data, matches) {
-		if (!ChunkBot.isAdmin(data.from)) {
+		if (!ChunkBot.isAdmin(data.from) && !openBar) {
 			ChunkBot.sayRandom([
 				"Do you think this is a fucking game @" + data.from + "? I aint woobot mother fucker.",
 				"Get your own fucking drink, @" + data.from + "!",
@@ -137,7 +159,34 @@ ChunkBot.addCommand({
 			]);
 		}
 	}
+}).addCommand({
+    text: /bot (open|close) ?bar/,
+    title: "bot [open|close] bar",
+    callback: function(data, matches) {
+        if (!ChunkBot.isAdmin(data.from)) {
+            ChunkBot.sayRandom(['Hah! Nope.', 'Nice try.', "Ain't gonna happen.", 'Rejection is hard.']);
+            return;
+        }
+
+        // Parse command.
+        var command = matches[1];
+        if (command == "open" && !openBar) {
+            // Announce open bar and set a crappy timer loop.
+            openBar = true;
+            ChunkBot.say(":beers: The bar is now open for " + openBarSeconds + " seconds! FREE BEER FOR EVERYONE! Say 'bot drink' or 'bot drinks' to get your free drink. :beers:");
+            openBarLoop();
+
+        } else if (command == "close" && openBar) {
+            ChunkBot.say(":poop: Well someone is a party pooper. :poop:");
+            openBar = false;
+            clearTimeout(openBarTimeout);
+        }
+    }
 });
+
+/*********************************
+ * END OPEN BAR COMMANDS & LOGIC *
+ *********************************/
 
 
 // Administrative commands.
