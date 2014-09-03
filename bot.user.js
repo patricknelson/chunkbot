@@ -2,10 +2,10 @@
 // @name		ChunkBot Autoloader
 // @author		Patrick Nelson (pat@catchyour.com) a.k.a. chunk_split()
 // @namespace	https://github.com/patricknelson/chunkbot
-// @version		0.2
+// @version		0.3
 // @description	Automatically loads the ChunkBot when
-// @match		http://plug.dj/*
-// @match		http://www.plug.dj/*
+// @match		*://plug.dj/*
+// @match		*://www.plug.dj/*
 // @copyright	2013+, Patrick Nelson
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js
 // ==/UserScript==
@@ -15,8 +15,12 @@
 /************************
  * CUSTOM CONFIGURATION *
  ************************/
-var ChunkBotURL = ''; // Required...
-var botUser = ''; // Required...
+// Required.
+var ChunkBotURL = '';
+var botUser = '';
+var roomURL = ''; // URL of the room to reload to (in case plug.dj decides to redirect away, like for maintenance).
+
+// Optional.
 var muteOnLoad = true; // Mute volume in the window that this bot is running in.
 var reloadAfter = 60; // Minutes in which this bot should be automatically reloaded (NOTE: Settings WILL be persisted!)
 
@@ -112,6 +116,6 @@ $(function(){
 	var reloadBrowser = function() {
 		// Store current ChunkBot configuration specifically for reload.
 		if (typeof unsafeWindow.ChunkBot != "undefined") storeSettings("config", unsafeWindow.ChunkBot.config);
-		unsafeWindow.location.reload();
+		unsafeWindow.location.href = roomURL;
 	};
 });
