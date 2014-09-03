@@ -9,7 +9,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
 
- * @package	ChunkBot v0.3
+ * @package	ChunkBot v0.4
  * @author	Patrick Nelson (pat@catchyour.com), a.k.a. chunk_split() on plug.dj
  */
 

@@ -66,19 +66,19 @@ You can even match chat comments based on **regular expressions** (currently req
 
 ## Change Log ##
 
-* `v0.0.4`
+* `v0.4`
  + New 'maintenance mode' protection to redirect back to original URL of the room in case browser is redirected away for any reason. Will attempt reload/redirect back to room every minute until back online.
  + Implemented the  `bot open bar` and `bot close bar` commands! Free beer for all (but only when admins grant it).
-* `v0.0.3`
+* `v0.3`
  + Chrome user script.
  + Disable easter eggs by default.
  + Abstraction to retrieve getUsername() (so configs don't rely on API)
  + Now using "ChunkBotConfig" global to allow direct override of config after config is loaded.
-* `v0.0.2`
+* `v0.2`
  + Added force skip functionality (skips song after it finishes playing if not skipped by system or user).
  + Ability to set admin users and automatically add admins based on room moderators/staff (manager and above).
  + Output bot identification on load (a.k.a. "bot ident").
  + Ability to vote up/down songs (woot/meh).
  + Better chat message detection to prevent triggering commands on own output.
  + Added a lot administrative and moderator commands! 
-* `v0.0.1` - Inception.
+* `v0.1` - Inception.
