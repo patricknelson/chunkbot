@@ -2,7 +2,7 @@
 // @name		ChunkBot Autoloader
 // @author		Patrick Nelson (pat@catchyour.com) a.k.a. chunk_split()
 // @namespace	https://github.com/patricknelson/chunkbot
-// @version		0.3
+// @version		0.4
 // @description	Automatically loads the ChunkBot when
 // @match		*://plug.dj/*
 // @match		*://www.plug.dj/*
