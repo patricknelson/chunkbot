@@ -384,6 +384,7 @@ var ChunkBot = {
         var last = [];
 
         // Get current media "cid" to ensure the first item in our list isn't the current song.
+        if (history.length == 0) return [];
         var currentMedia = API.getMedia();
         var firstMedia = history[0].media;
         if (typeof currentMedia != "undefined" && currentMedia.cid == firstMedia.cid) history.shift();
