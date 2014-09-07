@@ -32,9 +32,22 @@ var ChunkBotConfig = {
  * END CUSTOM CONFIGURATION *
  ****************************/
 
-
 $(function(){
 	console.log("[Autoloader initialized]");
+
+	// Prevent loading script inside a frame (fixes issues with multiple instances).
+	if (window.top != window.self) {
+		console.log("[Autoloader] Running in frame, exiting now!");
+		return;
+	}
+
+	// Set interval that monitors to see if we're currently logged into the correct room.
+	if (!validateRoom()) return;
+	var roomMonitor = setInterval(function() {
+		if (!validateRoom()) {
+			clearInterval(roomMonitor);
+		}
+	}, 1000);
 
 	// Watch and wait for the API to become available...
 	var startedWatching = (new Date()).getTime();
@@ -44,8 +57,8 @@ $(function(){
 			clearInterval(watchAPI);
 			setTimeout(function() {
 				// Check to see if the user is the correct bot user to load as.
-				if (API.getUser().username.toLowerCase() != botUser.toLowerCase()) {
-					console.log("[Autoloader] The user '" + API.getUser().username + "' is not the bot user, exiting now.");
+				if (!isValidUser()) {
+					console.log("[Autoloader] The user '" + getUser() + "' is not the bot user, exiting now.");
 					return;
 				}
 
@@ -88,6 +101,13 @@ $(function(){
 
 			}, 3000);
 		} else {
+			// Attempt to get the username now and see if this is a valid user.
+			if (getUser() && !isValidUser()) {
+				console.log("[Autoloader] The user '" + getUser() + "' is not the bot user, exiting now.");
+				clearInterval(watchAPI);
+				return;
+			}
+
 			// If we've been watching for 60 seconds and still no joy, let's try reloading again!
 			var now = (new Date()).getTime();
 			var beenWatching = (now - startedWatching) / 1000;
@@ -102,10 +122,15 @@ $(function(){
 		}
 	}, 1000);
 
+});
+
 
 	// Small abstraction for persisting configuration after page load.
 	var storeSettings = function(name, settings) {
+	try {
+		// In rare circumstances (changing between rooms), stringify below may result in "Converting circular structure to JSON".
 		localStorage.setItem(name, JSON.stringify(settings));
+	} catch (e) {}
 	};
 	var getSettings = function(name) {
 		return JSON.parse(localStorage.getItem(name));
@@ -118,4 +143,54 @@ $(function(){
 		if (typeof unsafeWindow.ChunkBot != "undefined") storeSettings("config", unsafeWindow.ChunkBot.config);
 		unsafeWindow.location.href = roomURL;
 	};
-});
+
+
+// Enables fetching username even when not in a room where the API global is typically available.
+var getUser = function() {
+	// Attempt to get username from the API first.
+	if (typeof API != "undefined" && API.getUser() && API.getUser().username) return API.getUser().username;
+
+	// Grab via HTML as a last resort (not officially supported and thus worse longevity).
+	var userSpan = $("#footer-user .name span");
+	if (userSpan.length == 0) return "";
+	return userSpan.text();
+};
+
+
+// Indicates that the currently logged in user is a valid bot user.
+var isValidUser = function() {
+	return getUser().toLowerCase() == botUser.toLowerCase();
+};
+
+
+
+// Indicates that the bot is located at the correct room URL.
+var isValidRoom = function() {
+	return parseRoom(roomURL) == parseRoom(window.location.href);
+};
+
+
+// Pulls out the lowercase name of the room based on the [presumably valid] room URL.
+var parseRoom = function(url) {
+	// Break URL into segments and return first non-empty segment.
+	var segments = url.split("/");
+	var segment;
+	while ((segment = segments.pop()) !== undefined) {
+		if (segment != "") return segment.toLowerCase();
+	}
+
+	return "";
+};
+
+
+// Centralized room validation and redirect.
+var validateRoom = function() {
+	if (!isValidRoom()) {
+		console.log("[Autoloader] Current room '" + parseRoom(window.location.href) + "' is not the properly configured room of '" + parseRoom(roomURL) + "', redirecting in 10 seconds...");
+		setTimeout(function() {
+			reloadBrowser();
+		}, 10000);
+		return false;
+	}
+	return true;
+};
