@@ -3,7 +3,7 @@ ChunkBot
 
 **A node.js based Plug.dj bot.**
 
-A chat and moderation bot for Plug.dj that runs isolated entirely in node.js. Even though the bot runs in node.js, it is sitll able to use primarily the published API's by proxy of utilizing the "node-webkit" module along with some and other reasonably simple manual tweaks to facilitate non-API based functionality.
+A chat and moderation bot for Plug.dj that runs isolated entirely in node.js. Even though the bot runs in node.js, it is still able to use primarily the published API's by proxy of utilizing the "node-webkit" module along with some and other reasonably simple manual tweaks to facilitate non-API based functionality.
 
 **Documentation Under Construction**
 
