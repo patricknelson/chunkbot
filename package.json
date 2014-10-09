@@ -1,0 +1,24 @@
+{
+  "main": "index.html",
+  "name": "nw-chunkbot",
+  "description": "Browserless ChunkBot",
+  "version": "0.1.0",
+  "keywords": [ "chunkbot", "node-webkit" ],
+  "window": {
+    "title": "Browserless ChunkBot",
+    "icon": "",
+    "toolbar": false,
+    "frame": true,
+    "width": 800,
+    "height": 500,
+    "position": "center",
+    "min_width": 400,
+    "min_height": 200,
+    "max_width": 0,
+    "max_height": 0
+  },
+  "webkit": {
+    "plugin": false,
+    "false": false
+  }
+}

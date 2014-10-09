@@ -3,3 +3,5 @@ plug-source
 config.custom.js
 *.custom.js
 _*
+creds.js
+links/
