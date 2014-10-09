@@ -1,22 +1,28 @@
 ChunkBot
 ========
 
-**A plug.dj bot.**
+**A node.js based Plug.dj bot.**
 
-To demo this bot, [visit this page](https://rawgithub.com/patricknelson/chunkbot/master/demo.html) and set it up as a bookmarklet. Otherwise, you can host the bot JavaScript code on your own server. If you do, be sure to edit the `config.js` or `config.custom.js` files to add your own commands, if you want.
+A chat and moderation bot for Plug.dj that runs isolated entirely in node.js. Even though the bot runs in node.js, it is sitll able to use primarily the published API's by proxy of utilizing the "node-webkit" module along with some and other reasonably simple manual tweaks to facilitate non-API based functionality.
 
-**Important:** The bot must be loaded using the `ChunkBotURL` variable in a bookmarklet so that the bot can then autoload its configuration and external files. For example:
+**Documentation Under Construction**
 
-    javascript:var ChunkBotURL='http://server/bot.js';$.getScript(ChunkBotURL);  
+This has just been converted from a user-script + external script combination, so more documentation on setup/configuration is coming soon. Also, a lot of refactoring still needs to be done in order to make the code more organized and oriented toward the standard node.js modular design pattern. 
 
-Otherwise, you will have to set the `ChunkBot.config.baseURL` setting directly in the `bot.js` file.
+##Configuration##
+
+More detailed instructions coming soon.
+
+1. Download and install [node-webkit](https://github.com/rogerwang/node-webkit). Make sure to add it to your system path.
+2. Copy `creds-sample.js` to `creds.js` and edit to incorporate your plug.dj username and password.
+3. Run by changing into the directory where you've downloaded these files and then type: `nw .`
 
 
-##Auto-Loading and Auto-Refreshing ##
+##Auto-Loading and Auto-Refreshing##
 
-Since plug.dj has a client-side JavaScript API, it has to run in its own browser instance, which can be prone to errors. There can be disconnects or page reloads, which could permanently render the bot disabled until someone manually reloads it again via the bookmarklet. A better approach would be to have this happen automatically as a fail-safe. That's why auto-loading and auto-refreshing is *extremely* useful for long-term setup. 
+Since plug.dj has a client-side JavaScript API, it has to run in its own browser instance (webkit), which can be prone to errors. There can be disconnects or page reloads, which could permanently render the bot disabled until someone manually reloads it again via the bookmarklet. A better approach would be to have this happen automatically as a fail-safe. That's why auto-loading and auto-refreshing is *extremely* useful for long-term setup.
 
-You can set the bot up to automatically load when you visit plug.dj. To do this in Chrome, install [Tampermonkey](http://tampermonkey.net/), customize the `bot.user.js` script and paste in your customized code. You should also be able to use [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) for Firefox but this has not yet been tested.
+Chrome is no longer needed! This automated reload/recovery process has been facilitated now via the primary `index.js` file (running in node-webkit) which supercedes the old Tampermonkey user script (formerly `bot.user.js` which ran in the browser).
 
 
 ## Example Commands ##
@@ -68,6 +74,9 @@ You can even match chat comments based on **regular expressions** (currently req
 
 ## Change Log ##
 
+* `v0.5`
+ + Moved to node.js/webkit architecture, away from the Tampermonkey (userscript) + browser script combination. Still needs more refactoring.
+ + Major improvements.
 * `v0.4`
  + New 'maintenance mode' protection to redirect back to original URL of the room in case browser is redirected away for any reason. Will attempt reload/redirect back to room every minute until back online.
  + Implemented the  `bot open bar` and `bot close bar` commands! Free beer for all (but only when admins grant it).
