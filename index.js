@@ -4,7 +4,7 @@ var gui = require('nw.gui'),
 
 
 // Config.
-// TODO: Set this up to load from separate directory.
+// TODO: Set this up to load configuration info from separate directory. Consolidate with the older bot config files too.
 var roomURL = "https://plug.dj/tt-fm-refugees/";
 var creds = require("./creds.js");
 var reloadAfter = 60; // Minutes in which this bot should be automatically reloaded (NOTE: Settings WILL be persisted!)
@@ -18,6 +18,9 @@ mainWin.showDevTools();
 
 // Plug window variables.
 var doc, unsafeWindow, $;
+
+// Bot instance (both are the same instance).
+var ChunkBot, bot;
 
 // Keep track of ALL intervals/timers so we can clear them all out in one place.
 var intervals = {
@@ -120,17 +123,24 @@ var initBotLoader = function() {
 
 				// TODO: Now load the bot!
 				// TODO: Need to convert the rest of the bot to utilize node's module pattern!
-				var ChunkBot = require("bot.js");
-				unsafeWindow.ChunkBot = ChunkBot;
-				//ChunkBot.init();
+				try {
+					// Load bot module...
+					bot = ChunkBot = require("./bot.js");
 
-				/*
-				unsafeWindow.ChunkBotURL = path.join(__dirname, "bot.js");
-				unsafeWindow.$.getScript(ChunkBotURL, function() {
-					// Destroy persisted settings now, since the bot was loaded successfully.
-					if (config) storeSettings("config", null);
-				});
-				*/
+					// ... and setup global instance in plug.dj window.
+					unsafeWindow.ChunkBot = bot;
+
+					// Initialize bot in OLD architecture by passing through scope for various needed objects.
+					bot.init($, console, getAPI(), unsafeWindow);
+
+					// Hide bot window.
+					console.log("[Autoloader] Bot is now loaded! To show window, type 'win.show()' in the console and 'win.hide()' to hide again.");
+					win.hide();
+
+
+				} catch(e) {
+					console.log(e);
+				}
 
 				// Setup reload timeout.
 				if (reloadAfter > 0) {
@@ -167,7 +177,6 @@ var getAPI = function() {
 	if (typeof unsafeWindow != "undefined" && unsafeWindow.API.getUser() && unsafeWindow.API.getUser().username) return unsafeWindow.API;
 	return false;
 };
-
 
 // Small abstraction for persisting configuration after page load.
 var storeSettings = function(name, settings) {

@@ -59,7 +59,7 @@ module.exports = function(ChunkBot) {
 			ChunkBot.say("Ok, @" + data.from + "... your test worked!");
 		}
 	}).addCommand({
-		text: /.*\bbot\b.*\b(dance|boogy|twerk)\b.*/ig,
+		text: /.*\bbot\b.*\b(dance|boog(y|ie)|twerk)\b.*/ig,
 		title: "bot dance",
 		callback: function(data, matches) {
 			if (ChunkBot.vote(1)) {
@@ -137,7 +137,7 @@ module.exports = function(ChunkBot) {
 		loop: function() {
 			if (this.countdown == 30) ChunkBot.say(":fire: You've got 30 seconds until the bar closes! :fire:");
 			if (this.countdown == 10) ChunkBot.say(":fire: Hurry up! Only 10 seconds remain until the bar closes! :fire:");
-			console.log("Open bar seconds remaining: " + openBar.countdown);
+			Chunkbot.log("Open bar seconds remaining: " + openBar.countdown);
 
 			this.countdown--;
 			if (this.countdown > 0) {
@@ -252,9 +252,13 @@ module.exports = function(ChunkBot) {
 			if (!ChunkBot.isAdmin(data.from)) return;
 
 			// Restart bot completely by reloading the main JavaScript file itself, which resets the object and its configuration.
+			// TODO: Need to implement by redeveloping to fit into the module design pattern! Currently would need to hook back into calling instance...
+			ChunkBot.say("WARNING: Not yet implemented in new architecture.");
+			/*
 			ChunkBot.say("Attempting restart...");
 			ChunkBot.processMessageQueue();
 			window.location.href = "javascript:$.getScript('" + ChunkBot.config.baseURL + "bot.js');";
+			*/
 		}
 	});
 
