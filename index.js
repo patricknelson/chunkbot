@@ -1,12 +1,16 @@
+var gui = require('nw.gui'),
+	path = require("path"),
+	__dirname = require("./modules/dirname.js");
+
 
 // Config.
+// TODO: Set this up to load from separate directory.
 var roomURL = "https://plug.dj/tt-fm-refugees/";
 var creds = require("./creds.js");
 var reloadAfter = 60; // Minutes in which this bot should be automatically reloaded (NOTE: Settings WILL be persisted!)
 
 
 // Get main window and hide it now.
-var gui = require('nw.gui');
 var mainWin = gui.Window.get();
 mainWin.hide();
 mainWin.showDevTools();
@@ -115,12 +119,18 @@ var initBotLoader = function() {
 				}
 
 				// TODO: Now load the bot!
-				console.log("LOAD BOT!");
-				/*unsafeWindow.ChunkBotURL = ChunkBotURL;
-				 unsafeWindow.$.getScript(ChunkBotURL, function() {
-				 // Destroy persisted settings now, since the bot was loaded successfully.
-				 if (config) storeSettings("config", null);
-				 });*/
+				// TODO: Need to convert the rest of the bot to utilize node's module pattern!
+				var ChunkBot = require("bot.js");
+				unsafeWindow.ChunkBot = ChunkBot;
+				//ChunkBot.init();
+
+				/*
+				unsafeWindow.ChunkBotURL = path.join(__dirname, "bot.js");
+				unsafeWindow.$.getScript(ChunkBotURL, function() {
+					// Destroy persisted settings now, since the bot was loaded successfully.
+					if (config) storeSettings("config", null);
+				});
+				*/
 
 				// Setup reload timeout.
 				if (reloadAfter > 0) {

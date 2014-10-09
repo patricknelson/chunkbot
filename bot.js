@@ -14,8 +14,6 @@
  */
 
 
-// Run cleanup if bot is being reloaded without full page refresh.
-if (typeof ChunkBot != "undefined" && ChunkBot) ChunkBot.cleanUp();
 
 // Define bot functionality.
 var ChunkBot = {
@@ -730,28 +728,33 @@ var ChunkBot = {
         var ChunkBotConfig = (typeof window.ChunkBotConfig != "undefined" ? window.ChunkBotConfig : {});
 
         // Load separately stored configuration.
-        this.load("config.js", function() {
-            // Override loaded configuration, if any globally set config exists.
-            for(var i in ChunkBotConfig) ChunkBot.config[i] = ChunkBotConfig[i];
+        var loadConfig = require("config.js");
+        loadConfig();
 
-            // Say something in chat to advertise successful load.
-            ChunkBot.say(ChunkBot.config.botIdent);
-            console.log("Loaded bot configuration:");
-            console.log(ChunkBot.config);
+        // Load custom config.
+        // TODO: Perform check here first to make sure file exists.
+        var loadCustConfig = require("config.custom.js");
+        loadConfig();
 
-            // Initialize the message queue loop.
-            ChunkBot.processMessageQueue();
-            ChunkBot.config.messageQueueInterval = setInterval(ChunkBot.processMessageQueue, ChunkBot.config.rateLimit);
+		// Override loaded configuration, if any globally set config exists.
+		for(var i in ChunkBotConfig) ChunkBot.config[i] = ChunkBotConfig[i];
 
-            // Read config to determine if skipping is enabled by default.
-            ChunkBot.forceSkip(ChunkBot.config.forceSkip);
+		// Say something in chat to advertise successful load.
+		ChunkBot.say(ChunkBot.config.botIdent);
+		console.log("Loaded bot configuration:");
+		console.log(ChunkBot.config);
 
-            // Start the idle processing loop.
-            ChunkBot.config.idleInterval = setInterval(ChunkBot.processIdle, 3000);
-        });
+		// Initialize the message queue loop.
+		ChunkBot.processMessageQueue();
+		ChunkBot.config.messageQueueInterval = setInterval(ChunkBot.processMessageQueue, ChunkBot.config.rateLimit);
+
+		// Read config to determine if skipping is enabled by default.
+		ChunkBot.forceSkip(ChunkBot.config.forceSkip);
+
+		// Start the idle processing loop.
+		ChunkBot.config.idleInterval = setInterval(ChunkBot.processIdle, 3000);
     }
 };
 
 
-// Initialize!
-ChunkBot.init();
+module.exports = ChunkBot;
