@@ -41,7 +41,8 @@ var ChunkBot = {
         lastSkipTime: null, // Indicates the last time a skip was performed (UNIX timestamp).
         skipDelay: 1000, // Amount of milliseconds to wait before allowing another skip.
         idleInterval: null,
-        lastSeen: {} // Used to maintain the array of users in chat and when they've last been seen. Maintained via idleInterval.
+        lastSeen: {}, // Used to maintain the array of users in chat and when they've last been seen. Maintained via idleInterval.
+        restarted: false
     },
 
 
@@ -62,6 +63,11 @@ var ChunkBot = {
 	// Instance of the node-webkit console.
 	console: null,
 
+	// Set externally. Function to restart the bot.
+	restart: null,
+
+	// Set externally. Function to kill the bot completely and totally.
+	die: null,
 
 
 	/**
@@ -569,16 +575,18 @@ var ChunkBot = {
             data.fromID = data.uid;
 
             // Log message from user in console.
-            ChunkBot.log("[Chat] " + data.un + ": " + data.message);
+            ChunkBot.log("[Chat] " + data.un + ": '" + data.message + "'");
 
             // Track the time that this user has sent a chat message.
             if (typeof ChunkBot.config.lastSeen[data.uid] != "undefined") ChunkBot.config.lastSeen[data.uid].time = (new Date()).getTime();
 
             // Ensure bot doesn't trigger a command on itself.
             if (ChunkBot.config.botUser == "" && data.message == ChunkBot.config.botIdent) ChunkBot.config.botUser = data.un;
+			ChunkBot.log("got here 0");
 
             // See if this exact message is from this user...
             if (data.un == ChunkBot.config.botUser && ChunkBot.hasSaid(data.message)) return;
+			ChunkBot.log("got here 1");
 
             // Go through commands to see if a command matches this message and should be triggered.
             for(var index in ChunkBot.config.commands) {
@@ -587,12 +595,14 @@ var ChunkBot = {
                 var matches = [];
 
                 if (command.text instanceof RegExp) {
+					ChunkBot.log("got here 2");
                     if (command.text.test(data.message)) {
                         found = true;
                         matches = command.text.exec(data.message);
                     }
                 } else {
                     if (command.text.toLowerCase() == data.message.toLowerCase()) found = true;
+					ChunkBot.log(command.text.toLowerCase() + " = " + (command.text.toLowerCase() == data.message.toLowerCase()));
                 }
 
                 // Run command callback now and break (if found).
@@ -702,7 +712,7 @@ var ChunkBot = {
         ChunkBot.log("Unloading bot now.");
         ChunkBot.processMessageQueue();
         ChunkBot.cleanUp();
-        ChunkBot = null;
+        ChunkBot.die();
     },
 
 
@@ -725,7 +735,7 @@ var ChunkBot = {
     /**
      * Initialize bot.
      */
-    init: function(jQuery, console, API, window) {
+    init: function(jQuery, console, API, window, restart, die) {
     	// Configure DIV now that we've got access to an instance of jQuery.
 		ChunkBot.jQuery = jQuery;
     	ChunkBot.div = jQuery("<div />");
@@ -761,7 +771,11 @@ var ChunkBot = {
 		for(var i in ChunkBotConfig) ChunkBot.config[i] = ChunkBotConfig[i];
 
 		// Say something in chat to advertise successful load.
-		ChunkBot.say(ChunkBot.config.botIdent);
+		if (!ChunkBot.config.restarted) {
+			ChunkBot.say(ChunkBot.config.botIdent);
+		} else {
+			ChunkBot.say("I'm back!");
+		}
 		ChunkBot.log("Loaded bot configuration:");
 		ChunkBot.log(ChunkBot.config);
 

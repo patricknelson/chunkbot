@@ -37,7 +37,7 @@ var intervals = {
 /*******************************
  * LOAD PLUG.DJ AND LOGIN USER *
  *******************************/
-var win, unexpectedClose = true;
+var win, unexpectedClose = true, restarted = false; // TODO: WILL NEED TO EVENTUALLY NEED A CLEANER WAY TO MAINTAIN STATE after everything is restructured.
 var initWin = function() {
 	// Force close of existing window, if applicable.
 	if (typeof win != "undefined") {
@@ -109,6 +109,9 @@ var initBotLoader = function() {
 				var config = getSettings("config");
 
 				// Load any persisted settings while applying current override configuration, since this is a page reload.
+				console.log("Restarted: " + restarted);
+				console.log("Found config:");
+				console.log(config);
 				if (config) {
 					// Reset all configuration information EXCEPT for commands.
 					var newConfig = {};
@@ -117,8 +120,12 @@ var initBotLoader = function() {
 						newConfig[i] = config[i];
 					}
 
+					// Retain "restarted" setting from current scope.
+					newConfig.restarted = restarted;
+					console.log("Saved restarted");
+
 					// Setup final overriding configuration, allowing ChunkBotConfig to have final say.
-					unsafeWindow.ChunkBotConfig = $.extend(newConfig, ChunkBotConfig);
+					unsafeWindow.ChunkBotConfig = $.extend(newConfig, unsafeWindow.ChunkBotConfig);
 				}
 
 				// TODO: Now load the bot!
@@ -131,12 +138,20 @@ var initBotLoader = function() {
 					unsafeWindow.ChunkBot = bot;
 
 					// Initialize bot in OLD architecture by passing through scope for various needed objects.
-					bot.init($, console, getAPI(), unsafeWindow);
+					bot.init($, console, getAPI(), unsafeWindow, reloadBrowser);
+
+					// Administrative functionality, given access to the bot itself for manipulation by commands.
+					// TODO: This functionality will eventually all be properly packaged up... eventually.
+					bot.restart = reloadBrowser;
+					bot.die = function() {
+						process.exit();
+					};
+
 
 					// Hide bot window.
 					console.log("[Autoloader] Bot is now loaded! To show window, type 'win.show()' in the console and 'win.hide()' to hide again.");
+					console.log("[Autoloader] To kill the bot, type 'bot.die()'. To restart, type 'bot.restart()'.");
 					win.hide();
-
 
 				} catch(e) {
 					console.log(e);
@@ -179,23 +194,26 @@ var getAPI = function() {
 };
 
 // Small abstraction for persisting configuration after page load.
-var storeSettings = function(name, settings) {
+var settings = {}; // TODO: Storing this way since localStorage fails to work since node-webkit is utilizing data URL's for pages.
+var storeSettings = function(name, values) {
 	try {
 		// In rare circumstances (changing between rooms), stringify below may result in "Converting circular structure to JSON".
-		localStorage.setItem(name, JSON.stringify(settings));
+		settings[name] = values;
 	} catch (e) {}
 };
 var getSettings = function(name) {
-	return JSON.parse(localStorage.getItem(name));
+	return settings[name];
 };
 
 
 // Allows reloading browser without losing settings.
 var reloadBrowser = function() {
 	// Store current ChunkBot configuration specifically for reload.
-	if (typeof unsafeWindow.ChunkBot != "undefined") storeSettings("config", unsafeWindow.ChunkBot.config);
+	storeSettings("config", bot.config);
 
+	// Perform reload.
 	unexpectedClose = false;
+	restarted = true;
 	win.close(true);
 	initWin();
 };

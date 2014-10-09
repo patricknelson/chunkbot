@@ -19,7 +19,7 @@ module.exports = function(ChunkBot) {
 	//ChunkBot.addAdmin("enter username here");
 
 	// Setup message that displays on start up.
-	//ChunkBot.config.botIdent = "ChunkBot reporting for duty. Boop beep bop.";
+	ChunkBot.config.botIdent = "ChunkBot reporting for duty. Boop beep bop.";
 
 	// Output song statistics after each play?
 	//ChunkBot.config.outputSongStats = true;
@@ -49,17 +49,17 @@ module.exports = function(ChunkBot) {
 
 	// Example full text match (case insensitive). You can chain multiple commands together as well.
 	ChunkBot.addCommand({ // Test command.
-		text: "bot test",
+		text: /^bot( test)?$/,
 		hide: true,
 		callback: function(data) {
 			// Only respond to admins.
 			if (!ChunkBot.isAdmin(data.from)) return;
 
 			// Respond saying test worked.
-			ChunkBot.say("Ok, @" + data.from + "... your test worked!");
+			ChunkBot.sayRandom(["Ok, @" + data.from + "... your test worked!", "Am not human, but am a life-form; have soul.", "No Disassemble!", "Johnny 5 is alive!"]);
 		}
 	}).addCommand({
-		text: /.*\bbot\b.*\b(dance|boog(y|ie)|twerk)\b.*/ig,
+		text: /.*\bbot\b.*\b(dance|boog(y|ie)|twerk|fire|emoji-1f525)\b.*/ig,
 		title: "bot dance",
 		callback: function(data, matches) {
 			if (ChunkBot.vote(1)) {
@@ -77,6 +77,32 @@ module.exports = function(ChunkBot) {
 					"Want me to STOP dancing??? @" + data.from,
 					"Hey YOU dance @" + data.from + "!",
 					"I'm already dancing, @" + data.from + ".",
+					"You can't tell me what to do @" + data.from + "!",
+					"Someone already told me to, @" + data.from + "."
+				]);
+			}
+		}
+	}).addCommand({
+		text: /.*\bbot\b.*\b(lame|poop|emoji-1f4a9)\b.*/ig,
+		title: "bot dance",
+		callback: function(data, matches) {
+			if (!ChunkBot.isAdmin(data.from) || true) ChunkBot.say(["Nope.", "No.", "Heh, nah.", "That's alright."], 8);
+
+			if (ChunkBot.vote(-1)) {
+				ChunkBot.sayRandom([
+					"I was just about to anyway, @" + data.from + "!",
+					"Alright no problem @" + data.from + "!",
+					"If @" + data.from + " hates this song, so do I!",
+					"Yeah @" + data.from + " this song SUCKS!",
+					"I shall drop it like it's cold, @" + data.from + "."
+				]);
+			} else {
+				ChunkBot.sayRandom([
+					"I'm already lamin' @" + data.from + ", I canna lame any HARDAH!",
+					"Wow you people are demanding, especially @" + data.from + ".",
+					"Want me to START dancing??? @" + data.from,
+					"Hey YOU lame it @" + data.from + "!",
+					"I'm already laming it, @" + data.from + ".",
 					"You can't tell me what to do @" + data.from + "!",
 					"Someone already told me to, @" + data.from + "."
 				]);
@@ -252,13 +278,9 @@ module.exports = function(ChunkBot) {
 			if (!ChunkBot.isAdmin(data.from)) return;
 
 			// Restart bot completely by reloading the main JavaScript file itself, which resets the object and its configuration.
-			// TODO: Need to implement by redeveloping to fit into the module design pattern! Currently would need to hook back into calling instance...
-			ChunkBot.say("WARNING: Not yet implemented in new architecture.");
-			/*
 			ChunkBot.say("Attempting restart...");
 			ChunkBot.processMessageQueue();
-			window.location.href = "javascript:$.getScript('" + ChunkBot.config.baseURL + "bot.js');";
-			*/
+			ChunkBot.restart();
 		}
 	});
 

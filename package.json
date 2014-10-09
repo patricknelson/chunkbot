@@ -7,10 +7,10 @@
   "window": {
     "title": "Browserless ChunkBot",
     "icon": "",
-    "toolbar": true,
+    "toolbar": false,
     "frame": true,
     "width": 800,
-    "height": 500,
+    "height": 600,
     "position": "center",
     "min_width": 400,
     "min_height": 200,
