@@ -27,7 +27,7 @@ Chrome is no longer needed! This automated reload/recovery process has been faci
 
 ## Example Commands ##
 
-** WARNING: Since the architecture of this system just changed to using node.js, this command syntax will likely change soon. **
+**WARNING:** Since the architecture of this system just changed to using node.js, this command syntax will likely change soon.
 
 Example **full text** match (case insensitive). You can chain multiple commands together as well.
 
