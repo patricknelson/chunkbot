@@ -582,11 +582,9 @@ var ChunkBot = {
 
             // Ensure bot doesn't trigger a command on itself.
             if (ChunkBot.config.botUser == "" && data.message == ChunkBot.config.botIdent) ChunkBot.config.botUser = data.un;
-			ChunkBot.log("got here 0");
 
             // See if this exact message is from this user...
             if (data.un == ChunkBot.config.botUser && ChunkBot.hasSaid(data.message)) return;
-			ChunkBot.log("got here 1");
 
             // Go through commands to see if a command matches this message and should be triggered.
             for(var index in ChunkBot.config.commands) {
@@ -595,14 +593,12 @@ var ChunkBot = {
                 var matches = [];
 
                 if (command.text instanceof RegExp) {
-					ChunkBot.log("got here 2");
                     if (command.text.test(data.message)) {
                         found = true;
                         matches = command.text.exec(data.message);
                     }
                 } else {
                     if (command.text.toLowerCase() == data.message.toLowerCase()) found = true;
-					ChunkBot.log(command.text.toLowerCase() + " = " + (command.text.toLowerCase() == data.message.toLowerCase()));
                 }
 
                 // Run command callback now and break (if found).
