@@ -3,7 +3,7 @@ ChunkBot
 
 **A plug.dj bot.**
 
-To demo this bot, [visit this page](https://rawgithub.com/patricknelson/chunkbot/master/index.html) and set it up as a bookmarklet. Otherwise, you can host the bot JavaScript code on your own server. If you do, be sure to edit the `config.js` or `config.custom.js` files to add your own commands, if you want.
+To demo this bot, [visit this page](https://rawgithub.com/patricknelson/chunkbot/master/demo.html) and set it up as a bookmarklet. Otherwise, you can host the bot JavaScript code on your own server. If you do, be sure to edit the `config.js` or `config.custom.js` files to add your own commands, if you want.
 
 **Important:** The bot must be loaded using the `ChunkBotURL` variable in a bookmarklet so that the bot can then autoload its configuration and external files. For example:
 
