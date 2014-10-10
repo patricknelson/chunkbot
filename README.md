@@ -66,8 +66,10 @@ You can even match chat comments based on **regular expressions** (currently req
 
 ## To Do ##
 
-* Setup better method for restarting bot to compensate for bugs in the current node-webkit architecture.
-* Restructure bot completely to make the most of everything now using the same environment in node-webkit.
+* Bug fix relating to song stats.
+* **Node-webkit related:**
+	* Setup better method for restarting bot to compensate for bugs in the current architecture.
+	* Restructure bot completely to make the most of everything now using the same environment.
 * General abstraction to set non boolean values (i.e. “bot set (name) (value)”).
 * Ability to set **song time limit** via command “bot set timelimit 10”. 
 * Auto skip if lame: Ability to enforce rule to force skip a song if it receives more “mehs” than “woots” (if over a threshold of “mehs” to prevent trolling). Would need to be enabled/disabled and a meh limit set. *May not be necessary???*
