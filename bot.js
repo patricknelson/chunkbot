@@ -131,7 +131,7 @@ var ChunkBot = {
             ChunkBot.config.previousOutput.push(ChunkBot.normalizeMessage(segment));
 
             // Add message to queue, segment by segment.
-            this.config.messageQueue.push(segment);
+            ChunkBot.config.messageQueue.push(segment);
         }
     },
 
@@ -658,7 +658,7 @@ var ChunkBot = {
         // Delegate API event hooks.
         for(var event in ChunkBot.events) {
             // Attach fresh hook.
-            ChunkBot.getAPI().on(ChunkBot.getAPI()[event], this.events[event]);
+            ChunkBot.getAPI().on(ChunkBot.getAPI()[event], ChunkBot.events[event]);
         }
     },
 
@@ -731,7 +731,7 @@ var ChunkBot = {
     /**
      * Initialize bot.
      */
-    init: function(jQuery, console, API, window, restart, die) {
+    init: function(jQuery, console, API, window) {
     	// Configure DIV now that we've got access to an instance of jQuery.
 		ChunkBot.jQuery = jQuery;
     	ChunkBot.div = jQuery("<div />");
@@ -743,11 +743,11 @@ var ChunkBot = {
 		ChunkBot.API = API;
 
         // Delegate event hooks now.
-        this.setupEvents();
+        ChunkBot.setupEvents();
 
         // Determine current username.
-        this.config.botUser = this.getUsername();
-        this.addAdmin(ChunkBot.config.botUser);
+        ChunkBot.config.botUser = ChunkBot.getUsername();
+        ChunkBot.addAdmin(ChunkBot.config.botUser);
 
         // Setup overriding configuration, if any.
         var ChunkBotConfig = (typeof window.ChunkBotConfig != "undefined" ? window.ChunkBotConfig : {});
@@ -769,9 +769,9 @@ var ChunkBot = {
 		// Say something in chat to advertise successful load.
 		if (!ChunkBot.config.restarted) {
 			ChunkBot.say(ChunkBot.config.botIdent);
-		} else {
-			ChunkBot.say("I'm back!");
 		}
+
+		// Config debug information.
 		ChunkBot.log("Loaded bot configuration:");
 		ChunkBot.log(ChunkBot.config);
 
