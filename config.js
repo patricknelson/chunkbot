@@ -22,7 +22,7 @@ module.exports = function(ChunkBot) {
 	ChunkBot.config.botIdent = "ChunkBot reporting for duty. Boop beep bop.";
 
 	// Output song statistics after each play?
-	//ChunkBot.config.outputSongStats = true;
+	ChunkBot.config.outputSongStats = true;
 
 	// Allow easter eggs by default?
 	//ChunkBot.config.easterEggs = true;
@@ -49,7 +49,7 @@ module.exports = function(ChunkBot) {
 
 	// Example full text match (case insensitive). You can chain multiple commands together as well.
 	ChunkBot.addCommand({ // Test command.
-		text: /^bot( test)?$/,
+		text: /^\s*bot( test)?\s*$/,
 		hide: true,
 		callback: function(data) {
 			// Only respond to admins.
@@ -247,7 +247,7 @@ module.exports = function(ChunkBot) {
 
 			// Build list of all commands currently available.
 			var availCommands = [];
-			for(i in ChunkBot.config.commands) {
+			for(var i in ChunkBot.config.commands) {
 				var command = ChunkBot.config.commands[i];
 				if (command.hide) continue;
 				if (command.title == "") continue; // Don't know what to call it, so move on.
