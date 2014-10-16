@@ -10,10 +10,13 @@ var creds = require("./creds.js");
 var reloadAfter = 60; // Minutes in which this bot should be automatically reloaded (NOTE: Settings WILL be persisted!)
 
 
-// Get main window and hide it now.
+// Hide main window, show dev tools and ensure that application is closed if this window gets closed.
 var mainWin = gui.Window.get();
 mainWin.hide();
 mainWin.showDevTools();
+setInterval(function() {
+	if (!mainWin.isDevToolsOpen()) process.exit();
+}, 500);
 
 
 // Plug window variables.
@@ -37,24 +40,15 @@ var intervals = {
 /*******************************
  * LOAD PLUG.DJ AND LOGIN USER *
  *******************************/
-var win, unexpectedClose = true, restarted = false; // TODO: WILL NEED TO EVENTUALLY NEED A CLEANER WAY TO MAINTAIN STATE after everything is restructured.
+var win, restarted = false; // TODO: WILL NEED TO EVENTUALLY NEED A CLEANER WAY TO MAINTAIN STATE after everything is restructured.
 var initWin = function() {
 	// Force close of existing window, if applicable.
-	if (typeof win != "undefined") {
-		unexpectedClose = false;
-		win.close(true);
-	}
+	if (typeof win != "undefined") win.close(true);
 
 	// Open a new window.
 	win = gui.Window.get(
 		window.open(roomURL)
 	);
-
-	// Close app if the bot window is closed.
-	win.on("close", function() {
-		if (unexpectedClose) process.exit();
-		unexpectedClose = true;
-	});
 
 	win.on("loaded", function() {
 		unsafeWindow = win.window; // Retaining old name from user script for now.
@@ -212,7 +206,6 @@ var reloadBrowser = function() {
 	storeSettings("config", bot.config);
 
 	// Perform reload.
-	unexpectedClose = false;
 	restarted = true;
 	win.close(true);
 	initWin();
