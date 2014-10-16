@@ -20,10 +20,10 @@ setInterval(function() {
 
 
 // Plug window variables.
-var doc, unsafeWindow, $;
+var plugDoc, plugWin, $;
 
-// Bot instance (both are the same instance).
-var ChunkBot, bot;
+// Bot instance.
+var bot;
 
 // Keep track of ALL intervals/timers so we can clear them all out in one place.
 var intervals = {
@@ -49,21 +49,23 @@ var initWin = function() {
 	win = gui.Window.get(
 		window.open(roomURL)
 	);
+	win.hide();
 
 	win.on("loaded", function() {
-		unsafeWindow = win.window; // Retaining old name from user script for now.
-		doc = win.window.document;
-		$ = unsafeWindow.$; // Utilize plug.dj's reference to jQuery.
+		plugWin = win.window;
+		plugDoc = plugWin.document;
+		$ = plugWin.$; // Utilize plug.dj's reference to jQuery.
 
 		// Attempt to login, if available.
-		var loginButton = doc.querySelector(".header .existing button");
+		var loginButton = plugDoc.querySelector(".header .existing button");
 		if (loginButton) {
+			console.log("[Autoloader] Attempting to login to plug.dj...");
 			loginButton.click();
 
 			// Populate login fields and submit form.
-			doc.querySelector("#email").value = creds.email;
-			doc.querySelector("#password").value = creds.password;
-			doc.querySelector("#submit").click();
+			plugDoc.querySelector("#email").value = creds.email;
+			plugDoc.querySelector("#password").value = creds.password;
+			plugDoc.querySelector("#submit").click();
 		}
 
 		// Initialize bot loader which monitors room URL, waits for the API and loads the bot when ready.
@@ -81,8 +83,8 @@ var initBotLoader = function() {
 	console.log("[Autoloader] Bot loader initialized.");
 
 	// Clear out all intervals and timeouts now (in case this function has already been called).
-	for(i in intervals) clearInterval(intervals[i]);
-	for(t in timeouts) clearTimeout(timeouts[t]);
+	for(var i in intervals) clearInterval(intervals[i]);
+	for(var t in timeouts) clearTimeout(timeouts[t]);
 
 	// Set interval that monitors to ensure that we're always logged into the correct room.
 	if (!validateRoom()) return;
@@ -104,35 +106,33 @@ var initBotLoader = function() {
 
 				// Load any persisted settings while applying current override configuration, since this is a page reload.
 				console.log("Restarted: " + restarted);
-				console.log("Found config:");
-				console.log(config);
+				var configOverride = {};
 				if (config) {
+					console.log("Found config:");
+					console.log(config);
+
 					// Reset all configuration information EXCEPT for commands.
-					var newConfig = {};
-					for(var i in config) {
-						if (i == "commands") continue;
-						newConfig[i] = config[i];
+					for(var k in config) {
+						if (k == "commands") continue;
+						configOverride[k] = config[k];
 					}
 
 					// Retain "restarted" setting from current scope.
-					newConfig.restarted = restarted;
+					configOverride.restarted = restarted;
 					console.log("Saved restarted");
-
-					// Setup final overriding configuration, allowing ChunkBotConfig to have final say.
-					unsafeWindow.ChunkBotConfig = $.extend(newConfig, unsafeWindow.ChunkBotConfig);
 				}
 
-				// TODO: Now load the bot!
+				// Now load the bot!
 				// TODO: Need to convert the rest of the bot to utilize node's module pattern!
 				try {
 					// Load bot module...
-					bot = ChunkBot = require("./bot.js");
+					bot = require("./bot.js");
 
 					// ... and setup global instance in plug.dj window.
-					unsafeWindow.ChunkBot = bot;
+					plugWin.ChunkBot = bot;
 
 					// Initialize bot in OLD architecture by passing through scope for various needed objects.
-					bot.init($, console, getAPI(), unsafeWindow, reloadBrowser);
+					bot.init($, console, getAPI(), configOverride);
 
 					// Administrative functionality, given access to the bot itself for manipulation by commands.
 					// TODO: This functionality will eventually all be properly packaged up... eventually.
@@ -141,11 +141,9 @@ var initBotLoader = function() {
 						process.exit();
 					};
 
-
-					// Hide bot window.
+					// Show load success.
 					console.log("[Autoloader] Bot is now loaded! To show window, type 'win.show()' in the console and 'win.hide()' to hide again.");
 					console.log("[Autoloader] To kill the bot, type 'bot.die()'. To restart, type 'bot.restart()'.");
-					win.hide();
 
 				} catch(e) {
 					console.log(e);
@@ -159,6 +157,7 @@ var initBotLoader = function() {
 				}
 
 			}, 3000);
+
 		} else {
 			// If we've been watching for 60 seconds and still no joy, let's try reloading again!
 			var now = (new Date()).getTime();
@@ -167,6 +166,7 @@ var initBotLoader = function() {
 			var remaining = Math.floor(threshold - beenWatching);
 			var warnAt = 20; // remaining.
 			var message = "Waiting for API...";
+
 			if (remaining <= warnAt) message += " reloading to try again in " + remaining + " seconds.";
 			console.log(message);
 
@@ -183,7 +183,7 @@ var initBotLoader = function() {
 
 // Just a shortcut to help with refactoring from old user script.
 var getAPI = function() {
-	if (typeof unsafeWindow != "undefined" && unsafeWindow.API.getUser() && unsafeWindow.API.getUser().username) return unsafeWindow.API;
+	if (typeof plugWin != "undefined" && plugWin.API.getUser() && plugWin.API.getUser().username) return plugWin.API;
 	return false;
 };
 
@@ -229,7 +229,14 @@ var getUser = function() {
 
 // Indicates that the bot is located at the correct room URL.
 var isValidRoom = function() {
-	return parseRoom(roomURL) == parseRoom(unsafeWindow.location.href);
+	return parseRoom(roomURL) == parseRoom(getCurrentUrl());
+};
+
+
+// Current URL of plug.dj window.
+var getCurrentUrl = function() {
+	if (typeof plugWin.location.href == "undefined") return "";
+	return plugWin.location.href;
 };
 
 
@@ -249,7 +256,7 @@ var parseRoom = function(url) {
 // Centralized room validation and redirect.
 var validateRoom = function() {
 	if (!isValidRoom()) {
-		console.log("[Autoloader] Current room '" + parseRoom(unsafeWindow.location.href) + "' is not the properly configured room of '" + parseRoom(roomURL) + "', redirecting in 10 seconds...");
+		console.log("[Autoloader] Current room '" + parseRoom(getCurrentUrl()) + "' is not the properly configured room of '" + parseRoom(roomURL) + "', redirecting in 10 seconds...");
 		timeouts.validateRoom = setTimeout(function() {
 			reloadBrowser();
 		}, 10000);

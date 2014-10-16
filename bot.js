@@ -749,7 +749,7 @@ var ChunkBot = {
     /**
      * Initialize bot.
      */
-    init: function(jQuery, console, API, window) {
+    init: function(jQuery, console, API, configOverride) {
     	// Configure DIV now instance we've got access to an instance of jQuery.
 		this.jQuery = jQuery;
     	this.div = jQuery("<div />");
@@ -767,9 +767,6 @@ var ChunkBot = {
         this.config.botUser = this.getUsername();
         this.addAdmin(this.config.botUser);
 
-        // Setup overriding configuration, if any.
-        var ChunkBotConfig = (typeof window.ChunkBotConfig != "undefined" ? window.ChunkBotConfig : {});
-
         // Load separately stored configuration.
         var loadConfig = require("./config.js");
 		// TODO: Currently need to pass in object scope which will change when updated to properly use module pattern.
@@ -782,7 +779,7 @@ var ChunkBot = {
 		loadCustConfig(this);
 
 		// Override loaded configuration, if any globally set config exists.
-		for(var i in ChunkBotConfig) this.config[i] = ChunkBotConfig[i];
+		for(var i in configOverride) this.config[i] = configOverride[i];
 
 		// Say something in chat to advertise successful load.
 		if (!this.config.restarted) {
