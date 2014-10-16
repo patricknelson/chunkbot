@@ -82,7 +82,7 @@ var ChunkBot = {
             hide: false,
             callback: function(data) {}
         };
-        var commandConfig = ChunkBot.jQuery.extend(defaults, config);
+        var commandConfig = this.jQuery.extend(defaults, config);
 
         // Setup a default title if not regex.
         if (commandConfig.title == "" && !(commandConfig.text instanceof RegExp)) commandConfig.title = commandConfig.text;
@@ -90,10 +90,10 @@ var ChunkBot = {
         // TODO: Ensure command isn't already present before adding to array.
 
         // Add command to configuration.
-        ChunkBot.config.commands.push(commandConfig);
+        this.config.commands.push(commandConfig);
 
         // Return self to allow chaining if you so desire.
-        return ChunkBot;
+        return this;
     },
 
 
@@ -128,10 +128,10 @@ var ChunkBot = {
             var segment = textSegments[s];
 
             // Track previous output to prevent triggering on it.
-            ChunkBot.config.previousOutput.push(ChunkBot.normalizeMessage(segment));
+            this.config.previousOutput.push(this.normalizeMessage(segment));
 
             // Add message to queue, segment by segment.
-            ChunkBot.config.messageQueue.push(segment);
+            this.config.messageQueue.push(segment);
         }
     },
 
@@ -145,7 +145,7 @@ var ChunkBot = {
     sayRandom: function(responseArray, howOften) {
         // Select a random response.
         var randomIndex = Math.floor(Math.random() * responseArray.length);
-        ChunkBot.say(responseArray[randomIndex], howOften);
+        this.say(responseArray[randomIndex], howOften);
     },
 
 
@@ -156,8 +156,8 @@ var ChunkBot = {
      * @returns {boolean}
      */
     hasSaid: function(message) {
-        message = ChunkBot.normalizeMessage(message);
-        return (ChunkBot.config.previousOutput.indexOf(message) != -1);
+        message = this.normalizeMessage(message);
+        return (this.config.previousOutput.indexOf(message) != -1);
     },
 
 
@@ -175,7 +175,7 @@ var ChunkBot = {
         message = message.replace(/:[a-z]+:/g, '');
 
         // Remove HTML code.
-        message = ChunkBot.div.html(message).text();
+        message = this.div.html(message).text();
 
         // Remove entities which typically are used for non alphanumeric chars.
         message = message.replace(/&[#0-9a-z]{2,5};/ig, "");
@@ -196,13 +196,13 @@ var ChunkBot = {
      */
     getAdmins: function() {
         // Start off with an array based on manually configured admins.
-        var admins = ChunkBot.config.admins;
+        var admins = this.config.admins;
 
         // See if we can automatically consider staff admins. If not, return manually configured admins.
-        if (!ChunkBot.config.autoAdminStaff) return admins;
+        if (!this.config.autoAdminStaff) return admins;
 
         // Hit the API now to get staff members.
-        var staff = ChunkBot.getAPI().getStaff();
+        var staff = this.getAPI().getStaff();
         for (i in staff) {
             var user = staff[i];
             var username = user.username.toLocaleLowerCase();
@@ -221,7 +221,7 @@ var ChunkBot = {
      */
     isAdmin: function(username) {
         // See if user is in the manually coded array of admins.
-        var admins = ChunkBot.getAdmins();
+        var admins = this.getAdmins();
         return (admins.indexOf(username.toLowerCase()) != -1);
     },
 
@@ -232,8 +232,8 @@ var ChunkBot = {
      * @param username
      */
     addAdmin: function(username) {
-        if (username == "" || ChunkBot.isAdmin(username)) return; // Don't waste time adding user.
-        ChunkBot.config.admins.push(username.toLowerCase());
+        if (username == "" || this.isAdmin(username)) return; // Don't waste time adding user.
+        this.config.admins.push(username.toLowerCase());
     },
 
 
@@ -244,8 +244,8 @@ var ChunkBot = {
      * @returns {boolean}
      */
     vote: function(direction) {
-        var woot = ChunkBot.jQuery("#woot");
-        var meh = ChunkBot.jQuery("#meh");
+        var woot = this.jQuery("#woot");
+        var meh = this.jQuery("#meh");
 
         // Determine current vote status.
         var currentDirection = 0;
@@ -276,25 +276,28 @@ var ChunkBot = {
     forceSkip: function(enabled) {
         if (enabled) {
             // Clear existing interval now, if set.
-            if (ChunkBot.config.forceSkipInterval) clearInterval(ChunkBot.config.forceSkipInterval);
+            if (this.config.forceSkipInterval) clearInterval(this.config.forceSkipInterval);
 
             // Setup interval which performs the skipping.
-            ChunkBot.config.forceSkipInterval = setInterval(ChunkBot.processForceSkip, 1000);
+            var instance = this;
+            this.config.forceSkipInterval = setInterval(function() {
+				instance.processForceSkip();
+            }, 1000);
 
             // See if force skip was already set (for reporting purposes).
-            if (ChunkBot.config.forceSkip) return false;
+            if (this.config.forceSkip) return false;
 
         } else {
             // Remove skip processing.
-            clearInterval(ChunkBot.config.forceSkipInterval);
-            ChunkBot.config.forceSkipInterval = null;
+            clearInterval(this.config.forceSkipInterval);
+            this.config.forceSkipInterval = null;
 
             // See if force skip was already disabled.
-            if (!ChunkBot.config.forceSkip) return false;
+            if (!this.config.forceSkip) return false;
         }
 
         // Update setting.
-        ChunkBot.config.forceSkip = enabled;
+        this.config.forceSkip = enabled;
 
         return true;
     },
@@ -305,12 +308,12 @@ var ChunkBot = {
      */
     processForceSkip: function() {
         // Don't worry about doing anything if there's no DJ on stage or if a DJ is on stage but the media object hasn't YET loaded (i.e. just stepped up from having no DJ).
-        if (typeof ChunkBot.getAPI().getDJ() == "undefined" || typeof ChunkBot.getAPI().getMedia() == "undefined") return;
+        if (typeof this.getAPI().getDJ() == "undefined" || typeof this.getAPI().getMedia() == "undefined") return;
 
         // Get remaining time and skip if the song is over.
-        var remaining = ChunkBot.getAPI().getTimeRemaining();
-        if (remaining % 30 == 0 && remaining > 0) ChunkBot.log("Time remaining: " + remaining + " seconds.");
-        if (remaining <= 0) ChunkBot.skip();
+        var remaining = this.getAPI().getTimeRemaining();
+        if (remaining % 30 == 0 && remaining > 0) this.log("Time remaining: " + remaining + " seconds.");
+        if (remaining <= 0) this.skip();
     },
 
 
@@ -319,16 +322,16 @@ var ChunkBot = {
      */
     skip: function() {
         // Don't worry about doing anything if there's no DJ on stage or if a DJ is on stage but the media object hasn't YET loaded (i.e. just stepped up from having no DJ).
-        if (typeof ChunkBot.getAPI().getDJ() == "undefined" || typeof ChunkBot.getAPI().getMedia() == "undefined") return;
+        if (typeof this.getAPI().getDJ() == "undefined" || typeof this.getAPI().getMedia() == "undefined") return;
 
         // Ensure we haven't just skipped recently.
-        var skipThreshold = ChunkBot.config.lastSkipTime + ChunkBot.config.skipDelay;
+        var skipThreshold = this.config.lastSkipTime + this.config.skipDelay;
         if ((new Date()).getTime() < skipThreshold) return;
 
         // Perform skip and track.
-        ChunkBot.getAPI().moderateForceSkip();
-        ChunkBot.log("Skipped song.");
-        ChunkBot.config.lastSkipTime = (new Date()).getTime();
+        this.getAPI().moderateForceSkip();
+        this.log("Skipped song.");
+        this.config.lastSkipTime = (new Date()).getTime();
     },
 
 
@@ -338,7 +341,7 @@ var ChunkBot = {
     processIdle: function() {
         // Start with an empty object of users.
         var lastSeen = {};
-        var users = ChunkBot.getAPI().getUsers();
+        var users = this.getAPI().getUsers();
         for(var i in users) {
             // Use the ID as the object key.
             var user = users[i];
@@ -346,7 +349,7 @@ var ChunkBot = {
 
             // See if we already have a time for this user.
             var time = 0;
-            if (typeof ChunkBot.config.lastSeen[id] != "undefined") time = ChunkBot.config.lastSeen[id].time;
+            if (typeof this.config.lastSeen[id] != "undefined") time = this.config.lastSeen[id].time;
 
             // Update current last object.
             lastSeen[id] = {
@@ -356,7 +359,7 @@ var ChunkBot = {
         }
 
         // Persist last seen object in config.
-        ChunkBot.config.lastSeen = lastSeen;
+        this.config.lastSeen = lastSeen;
     },
 
 
@@ -367,8 +370,8 @@ var ChunkBot = {
      */
     getDjTimes: function() {
         // Get users in waiting list
-        var users = ChunkBot.getAPI().getWaitList();
-        if (ChunkBot.getAPI().getDJ()) users.unshift(ChunkBot.getAPI().getDJ()); // Add DJ to top of list.
+        var users = this.getAPI().getWaitList();
+        if (this.getAPI().getDJ()) users.unshift(this.getAPI().getDJ()); // Add DJ to top of list.
 
         // Build custom "lastSeen" object.
         var lastSeen = {};
@@ -376,7 +379,7 @@ var ChunkBot = {
             // Use the ID as the object key.
             var user = users[i];
             var id = user.id;
-            if (typeof ChunkBot.config.lastSeen[id]) lastSeen[id] = ChunkBot.config.lastSeen[id];
+            if (typeof this.config.lastSeen[id]) lastSeen[id] = this.config.lastSeen[id];
         }
 
         return lastSeen;
@@ -390,12 +393,12 @@ var ChunkBot = {
      * @returns {Array}
      */
     last: function(number) {
-        var history = ChunkBot.getAPI().getHistory();
+        var history = this.getAPI().getHistory();
         var last = [];
 
         // Get current media "cid" to ensure the first item in our list isn't the current song.
         if (history.length == 0) return [];
-        var currentMedia = ChunkBot.getAPI().getMedia();
+        var currentMedia = this.getAPI().getMedia();
         var firstMedia = history[0].media;
         if (typeof currentMedia != "undefined" && currentMedia.cid == firstMedia.cid) history.shift();
 
@@ -427,7 +430,7 @@ var ChunkBot = {
      */
     getStatsMessage: function(number) {
         // Get last song played and it's score.
-        var last = ChunkBot.last(number);
+        var last = this.last(number);
         if (last.length == 0) return "";
 
         // Generate message.
@@ -450,9 +453,9 @@ var ChunkBot = {
      * @param message
      */
     toggle: function(message) {
-        ChunkBot.events.CHAT({
+        this.getEvents().CHAT({
             chatID: "",
-            un: ChunkBot.config.botUser,
+            un: this.config.botUser,
             uid: "",
             language: "en",
             message: message,
@@ -477,25 +480,26 @@ var ChunkBot = {
         reason += "  (temporary ban)";
 
         // Don't boot yourself.
-        if (username == ChunkBot.config.botUser.toLowerCase()) {
-            ChunkBot.say("I'm not going to ban myself, sorry.");
+        if (username == this.config.botUser.toLowerCase()) {
+            this.say("I'm not going to ban myself, sorry.");
             return;
         }
 
         // Go through users and look for a match in the username.
-        ChunkBot.log("Attempting to boot '" + username + "' for '" + reason + "'.");
-        var users = ChunkBot.getAPI().getUsers();
+        this.log("Attempting to boot '" + username + "' for '" + reason + "'.");
+        var users = this.getAPI().getUsers();
         for(var i in users) {
             var user = users[i];
             if (user.username.toLowerCase() == username) {
                 // Get user's ID and perform ban.
                 var userID = user.id;
-                ChunkBot.getAPI().moderateBanUser(userID, reason);
-                ChunkBot.say("Booted " + user.username + " (" + userID + ") for '" + reason + "'");
+                this.getAPI().moderateBanUser(userID, reason);
+                this.say("Booted " + user.username + " (" + userID + ") for '" + reason + "'");
 
                 // Set timeout to unban user after a few seconds.
+                var instance = this;
                 setTimeout(function() {
-                    ChunkBot.getAPI().moderateUnbanUser(userID);
+					instance.getAPI().moderateUnbanUser(userID);
                 }, 2000);
 
                 return;
@@ -503,7 +507,7 @@ var ChunkBot = {
         }
 
         // User was not found.
-        ChunkBot.log("User not found!");
+        this.log("User not found!");
     },
 
 
@@ -513,7 +517,7 @@ var ChunkBot = {
      * @returns {boolean}
      */
     eggs: function() {
-        return ChunkBot.config.easterEggs;
+        return this.config.easterEggs;
     },
 
 
@@ -523,7 +527,7 @@ var ChunkBot = {
      * @returns {string}
      */
     getUsername: function() {
-        return ChunkBot.getAPI().getUser().username;
+        return this.getAPI().getUser().username;
     },
 
 
@@ -533,7 +537,7 @@ var ChunkBot = {
      * @returns {int}
      */
     elapsed: function() {
-        return ChunkBot.getAPI().getTimeElapsed();
+        return this.getAPI().getTimeElapsed();
     },
 
 
@@ -560,6 +564,96 @@ var ChunkBot = {
     /****************************
      ** INTERNAL FUNCTIONALITY **
      ****************************/
+     events: null,
+
+	getEvents: function() {
+		if (this.events) return this.events;
+
+		// Define events now and return.
+		var instance = this;
+		this.events = {
+			// Receive message from chat.
+			CHAT: function(data) {
+				// Augment data object to allow backward compatibility for old "from" and "fromID" properties.
+				data.from = data.un;
+				data.fromID = data.uid;
+
+				// Log message from user in console.
+				instance.log("[Chat] " + data.un + ": '" + data.message + "'");
+
+				// Track the time instance this user has sent a chat message.
+				if (typeof instance.config.lastSeen[data.uid] != "undefined") instance.config.lastSeen[data.uid].time = (new Date()).getTime();
+
+				// Ensure bot doesn't trigger a command on itself.
+				if (instance.config.botUser == "" && data.message == instance.config.botIdent) instance.config.botUser = data.un;
+
+				// See if this exact message is from this user...
+				if (data.un == instance.config.botUser && instance.hasSaid(data.message)) return;
+
+				// Go through commands to see if a command matches this message and should be triggered.
+				for(var index in instance.config.commands) {
+					var command = instance.config.commands[index];
+					var found = false;
+					var matches = [];
+
+					if (command.text instanceof RegExp) {
+						if (command.text.test(data.message)) {
+							found = true;
+							matches = command.text.exec(data.message);
+						}
+					} else {
+						if (command.text.toLowerCase() == data.message.toLowerCase()) found = true;
+					}
+
+					// Run command callback now and break (if found).
+					if (found) {
+						command.callback(data, matches);
+						break;
+					}
+				}
+			},
+
+			// DJ advance.
+			DJ_ADVANCE: function(data) {
+				instance.log("[DJ Advance]");
+
+				// Wait a little while first before allowing a force skip this gives the instance.getAPI().getTimeRemaining() to start returning valid results.
+				if (instance.config.forceSkip) {
+					instance.forceSkip(false);
+					var instance = this;
+					setTimeout(function() {
+						instance.forceSkip(true);
+					}, 5000);
+				}
+			},
+
+			// History update.
+			HISTORY_UPDATE: function(data) {
+				instance.log("[History Update]");
+
+				// Output stats, if desired.
+				if (instance.config.outputSongStats) instance.say(instance.getStatsMessage(1));
+			},
+
+			// Waiting list changes.
+			WAIT_LIST_UPDATE: function(users) {
+
+			},
+
+			// User enter room.
+			USER_JOIN: function(user) {
+				instance.log("[User Enter] " + user.username);
+			},
+
+			// User leave room.
+			USER_LEAVE: function(user) {
+				instance.log("[User Leave] " + user.username);
+			}
+		};
+
+		return this.events;
+	},
+
 
     /**
      * Plug.DJ API event handlers.
@@ -567,83 +661,7 @@ var ChunkBot = {
      * NOTE: The event handler names must match the event constants setup under plug's API object (since these are
      * attached automatically). Easy, breezy, beautiful AUTO-BOT!
      */
-    events: {
-        // Receive message from chat.
-        CHAT: function(data) {
-            // Augment data object to allow backward compatibility for old "from" and "fromID" properties.
-            data.from = data.un;
-            data.fromID = data.uid;
-
-            // Log message from user in console.
-            ChunkBot.log("[Chat] " + data.un + ": '" + data.message + "'");
-
-            // Track the time that this user has sent a chat message.
-            if (typeof ChunkBot.config.lastSeen[data.uid] != "undefined") ChunkBot.config.lastSeen[data.uid].time = (new Date()).getTime();
-
-            // Ensure bot doesn't trigger a command on itself.
-            if (ChunkBot.config.botUser == "" && data.message == ChunkBot.config.botIdent) ChunkBot.config.botUser = data.un;
-
-            // See if this exact message is from this user...
-            if (data.un == ChunkBot.config.botUser && ChunkBot.hasSaid(data.message)) return;
-
-            // Go through commands to see if a command matches this message and should be triggered.
-            for(var index in ChunkBot.config.commands) {
-                var command = ChunkBot.config.commands[index];
-                var found = false;
-                var matches = [];
-
-                if (command.text instanceof RegExp) {
-                    if (command.text.test(data.message)) {
-                        found = true;
-                        matches = command.text.exec(data.message);
-                    }
-                } else {
-                    if (command.text.toLowerCase() == data.message.toLowerCase()) found = true;
-                }
-
-                // Run command callback now and break (if found).
-                if (found) {
-                    command.callback(data, matches);
-                    break;
-                }
-            }
-        },
-
-        // DJ advance.
-        DJ_ADVANCE: function(data) {
-            ChunkBot.log("[DJ Advance]");
-
-            // Wait a little while first before allowing a force skip this gives the ChunkBot.getAPI().getTimeRemaining() to start returning valid results.
-            if (ChunkBot.config.forceSkip) {
-                ChunkBot.forceSkip(false);
-                setTimeout(function() {
-                    ChunkBot.forceSkip(true);
-                }, 5000);
-            }
-        },
-
-        // History update.
-        HISTORY_UPDATE: function(data) {
-            ChunkBot.log("[History Update]");
-
-            // Output stats, if desired.
-            if (ChunkBot.config.outputSongStats) ChunkBot.say(ChunkBot.getStatsMessage(1));
-        },
-
-        // Waiting list changes.
-        WAIT_LIST_UPDATE: function(users) {
-
-        },
-
-        // User enter room.
-        USER_JOIN: function(user) {
-            ChunkBot.log("[User Enter] " + user.username);
-        },
-
-        // User leave room.
-        USER_LEAVE: function(user) {
-            ChunkBot.log("[User Leave] " + user.username);
-        }
+    eventsOld: {
 
     },
 
@@ -653,12 +671,12 @@ var ChunkBot = {
      */
     setupEvents: function() {
         // Remove any existing hooks now.
-        ChunkBot.removeEvents();
+        this.removeEvents();
 
         // Delegate API event hooks.
-        for(var event in ChunkBot.events) {
+        for(var event in this.getEvents()) {
             // Attach fresh hook.
-            ChunkBot.getAPI().on(ChunkBot.getAPI()[event], ChunkBot.events[event]);
+            this.getAPI().on(this.getAPI()[event], this.getEvents()[event]);
         }
     },
 
@@ -667,9 +685,9 @@ var ChunkBot = {
      * Detaches configured event hooks.
      */
     removeEvents: function() {
-        for(var event in ChunkBot.events) {
+        for(var event in this.getEvents()) {
             // Remove any existing hooks.
-            ChunkBot.getAPI().off(ChunkBot.getAPI()[event]);
+            this.getAPI().off(this.getAPI()[event]);
         }
     },
 
@@ -679,12 +697,12 @@ var ChunkBot = {
      */
     processMessageQueue: function() {
         // Get next message in queue and send it.
-        if (ChunkBot.config.messageQueue.length > 0) {
-            var text = ChunkBot.config.messageQueue.shift();
-            ChunkBot.getAPI().sendChat(text);
+        if (this.config.messageQueue.length > 0) {
+            var text = this.config.messageQueue.shift();
+            this.getAPI().sendChat(text);
 
             // Prune previous output to short list.
-            if (ChunkBot.config.previousOutput.length > 4) ChunkBot.config.previousOutput.shift();
+            if (this.config.previousOutput.length > 4) this.config.previousOutput.shift();
         }
     },
 
@@ -694,10 +712,10 @@ var ChunkBot = {
      * reloading the page).
      */
     cleanUp: function() {
-        clearInterval(ChunkBot.config.messageQueueInterval);
-        clearInterval(ChunkBot.config.idleInterval);
-        ChunkBot.forceSkip(false);
-        ChunkBot.removeEvents();
+        clearInterval(this.config.messageQueueInterval);
+        clearInterval(this.config.idleInterval);
+        this.forceSkip(false);
+        this.removeEvents();
     },
 
 
@@ -705,10 +723,10 @@ var ChunkBot = {
      * Causes the bot to kill itself.
      */
     unload: function() {
-        ChunkBot.log("Unloading bot now.");
-        ChunkBot.processMessageQueue();
-        ChunkBot.cleanUp();
-        ChunkBot.die();
+        this.log("Unloading bot now.");
+        this.processMessageQueue();
+        this.cleanUp();
+        this.die();
     },
 
 
@@ -716,7 +734,7 @@ var ChunkBot = {
 	 * To access node-webkit's console.
 	 */
 	log: function(message) {
-		ChunkBot.console.log(message);
+		this.console.log(message);
 	},
 
 
@@ -724,7 +742,7 @@ var ChunkBot = {
 	 * To access the configured Plug.DJ API object.
 	 */
 	getAPI: function() {
-		return ChunkBot.API;
+		return this.API;
 	},
 
 
@@ -732,22 +750,22 @@ var ChunkBot = {
      * Initialize bot.
      */
     init: function(jQuery, console, API, window) {
-    	// Configure DIV now that we've got access to an instance of jQuery.
-		ChunkBot.jQuery = jQuery;
-    	ChunkBot.div = jQuery("<div />");
+    	// Configure DIV now instance we've got access to an instance of jQuery.
+		this.jQuery = jQuery;
+    	this.div = jQuery("<div />");
 
     	// Configure console instance as well.
-		ChunkBot.console = console;
+		this.console = console;
 		
 		// And finally the Plug.DJ API object.
-		ChunkBot.API = API;
+		this.API = API;
 
         // Delegate event hooks now.
-        ChunkBot.setupEvents();
+        this.setupEvents();
 
         // Determine current username.
-        ChunkBot.config.botUser = ChunkBot.getUsername();
-        ChunkBot.addAdmin(ChunkBot.config.botUser);
+        this.config.botUser = this.getUsername();
+        this.addAdmin(this.config.botUser);
 
         // Setup overriding configuration, if any.
         var ChunkBotConfig = (typeof window.ChunkBotConfig != "undefined" ? window.ChunkBotConfig : {});
@@ -755,35 +773,40 @@ var ChunkBot = {
         // Load separately stored configuration.
         var loadConfig = require("./config.js");
 		// TODO: Currently need to pass in object scope which will change when updated to properly use module pattern.
-        loadConfig(ChunkBot);
+        loadConfig(this);
 
         // Load custom config.
         // TODO: Perform check here first to make sure file exists.
         var loadCustConfig = require("./config.custom.js");
 		// TODO: Currently need to pass in object scope which will change when updated to properly use module pattern.
-		loadCustConfig(ChunkBot);
+		loadCustConfig(this);
 
 		// Override loaded configuration, if any globally set config exists.
-		for(var i in ChunkBotConfig) ChunkBot.config[i] = ChunkBotConfig[i];
+		for(var i in ChunkBotConfig) this.config[i] = ChunkBotConfig[i];
 
 		// Say something in chat to advertise successful load.
-		if (!ChunkBot.config.restarted) {
-			ChunkBot.say(ChunkBot.config.botIdent);
+		if (!this.config.restarted) {
+			this.say(this.config.botIdent);
 		}
 
 		// Config debug information.
-		ChunkBot.log("Loaded bot configuration:");
-		ChunkBot.log(ChunkBot.config);
+		this.log("Loaded bot configuration:");
+		this.log(this.config);
 
 		// Initialize the message queue loop.
-		ChunkBot.processMessageQueue();
-		ChunkBot.config.messageQueueInterval = setInterval(ChunkBot.processMessageQueue, ChunkBot.config.rateLimit);
+		this.processMessageQueue();
+		var instance = this;
+		this.config.messageQueueInterval = setInterval(function() {
+			instance.processMessageQueue();
+		}, this.config.rateLimit);
 
 		// Read config to determine if skipping is enabled by default.
-		ChunkBot.forceSkip(ChunkBot.config.forceSkip);
+		this.forceSkip(this.config.forceSkip);
 
 		// Start the idle processing loop.
-		ChunkBot.config.idleInterval = setInterval(ChunkBot.processIdle, 3000);
+		this.config.idleInterval = setInterval(function() {
+			instance.processIdle();
+		}, 3000);
     }
 };
 
