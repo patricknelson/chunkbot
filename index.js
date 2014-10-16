@@ -1,8 +1,5 @@
-var gui = require('nw.gui'),
-	path = require("path"),
-	__dirname = require("./modules/dirname.js");
-
-
+// Global modules.
+var gui = require('nw.gui');
 
 // Config.
 var config = require("./config.json");
