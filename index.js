@@ -3,11 +3,23 @@ var gui = require('nw.gui'),
 	__dirname = require("./modules/dirname.js");
 
 
+
 // Config.
-// TODO: Set this up to load configuration info from separate directory. Consolidate with the older bot config files too.
+// TODO: Set this up to load configuration info from JSON file. Consolidate with the older bot config files too.
 var roomURL = "https://plug.dj/tt-fm-refugees/";
 var creds = require("./creds.js");
 var reloadAfter = 60; // Minutes in which this bot should be automatically reloaded (NOTE: Settings WILL be persisted!)
+
+
+// TODO: New bot loader under construction.
+var Loader = require("./loader.js");
+var loader = new Loader(roomURL, creds.email, creds.password);
+loader.on("loaded", function() {
+	// TODO: Setup bot now.
+	// TODO: Use loader.getPlugWin() to get reference to plug.dj window and document objects.
+});
+loader.load();
+
 
 
 // Hide main window, show dev tools and ensure that application is closed if this window gets closed.
@@ -209,21 +221,6 @@ var reloadBrowser = function() {
 	restarted = true;
 	win.close(true);
 	initWin();
-};
-
-
-// Enables fetching username even when not in a room where the API global is typically available.
-var getUser = function() {
-	// Attempt to get username from the API first.
-	if (getAPI()) {
-		console.log(getAPI().getUser());
-		return getAPI().getUser().username;
-	}
-
-	// Grab via HTML as a last resort (not officially supported and thus worse longevity).
-	var userSpan = $("#footer-user .name span");
-	if (userSpan.length == 0) return "";
-	return userSpan.text();
 };
 
 
