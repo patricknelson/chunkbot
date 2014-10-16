@@ -1,4 +1,6 @@
 {
+	"roomURL": "https://plug.dj/tt-fm-refugees/",
 	"email": "your@email.com",
-	"password": "passwordhere"
+	"password": "passwordhere",
+	"reloadAfterMinutes": 60
 }

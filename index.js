@@ -5,15 +5,13 @@ var gui = require('nw.gui'),
 
 
 // Config.
-// TODO: Set this up to load configuration info from JSON file. Consolidate with the older bot config files too.
-var roomURL = "https://plug.dj/tt-fm-refugees/";
 var config = require("./config.json");
-var reloadAfter = 60; // Minutes in which this bot should be automatically reloaded (NOTE: Settings WILL be persisted!)
+var reloadAfterMinutes = config.reloadAfterMinutes || 60; // Minutes in which this bot should be automatically reloaded (NOTE: Settings WILL be persisted!)
 
 
 // TODO: New bot loader under construction.
 var Loader = require("./loader.js");
-var loader = new Loader(roomURL, config.email, config.password);
+var loader = new Loader(config.roomURL, config.email, config.password);
 loader.on("loaded", function() {
 	// TODO: Setup bot now.
 
@@ -59,7 +57,7 @@ var initWin = function() {
 
 	// Open a new window.
 	win = gui.Window.get(
-		window.open(roomURL)
+		window.open(config.roomURL)
 	);
 	win.hide();
 
@@ -162,10 +160,10 @@ var initBotLoader = function() {
 				}
 
 				// Setup reload timeout.
-				if (reloadAfter > 0) {
+				if (reloadAfterMinutes > 0) {
 					timeouts.reload = setTimeout(function() {
 						reloadBrowser();
-					}, reloadAfter * 1000 * 60);
+					}, reloadAfterMinutes * 1000 * 60);
 				}
 
 			}, 3000);
@@ -226,7 +224,7 @@ var reloadBrowser = function() {
 
 // Indicates that the bot is located at the correct room URL.
 var isValidRoom = function() {
-	return parseRoom(roomURL) == parseRoom(getCurrentUrl());
+	return parseRoom(config.roomURL) == parseRoom(getCurrentUrl());
 };
 
 
@@ -253,7 +251,7 @@ var parseRoom = function(url) {
 // Centralized room validation and redirect.
 var validateRoom = function() {
 	if (!isValidRoom()) {
-		console.log("[Autoloader] Current room '" + parseRoom(getCurrentUrl()) + "' is not the properly configured room of '" + parseRoom(roomURL) + "', redirecting in 10 seconds...");
+		console.log("[Autoloader] Current room '" + parseRoom(getCurrentUrl()) + "' is not the properly configured room of '" + parseRoom(config.roomURL) + "', redirecting in 10 seconds...");
 		timeouts.validateRoom = setTimeout(function() {
 			reloadBrowser();
 		}, 10000);
