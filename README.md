@@ -14,7 +14,7 @@ This has just been converted from a user-script + external script combination, s
 More detailed instructions coming soon.
 
 1. Download and install [node-webkit](https://github.com/rogerwang/node-webkit). Make sure to add it to your system path.
-2. Copy `creds-sample.js` to `creds.js` and edit to incorporate your plug.dj username and password.
+2. Copy `config-sample.json` to `config.json` and edit to incorporate your plug.dj username and password.
 3. Run by changing into the directory where you've downloaded these files and then type: `nw .`
 
 

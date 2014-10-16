@@ -7,19 +7,19 @@ var gui = require('nw.gui'),
 // Config.
 // TODO: Set this up to load configuration info from JSON file. Consolidate with the older bot config files too.
 var roomURL = "https://plug.dj/tt-fm-refugees/";
-var creds = require("./creds.js");
+var config = require("./config.json");
 var reloadAfter = 60; // Minutes in which this bot should be automatically reloaded (NOTE: Settings WILL be persisted!)
 
 
 // TODO: New bot loader under construction.
 var Loader = require("./loader.js");
-var loader = new Loader(roomURL, creds.email, creds.password);
+var loader = new Loader(roomURL, config.email, config.password);
 loader.on("loaded", function() {
 	// TODO: Setup bot now.
+
 	// TODO: Use loader.getPlugWin() to get reference to plug.dj window and document objects.
 });
 loader.load();
-
 
 
 // Hide main window, show dev tools and ensure that application is closed if this window gets closed.
@@ -75,8 +75,8 @@ var initWin = function() {
 			loginButton.click();
 
 			// Populate login fields and submit form.
-			plugDoc.querySelector("#email").value = creds.email;
-			plugDoc.querySelector("#password").value = creds.password;
+			plugDoc.querySelector("#email").value = config.email;
+			plugDoc.querySelector("#password").value = config.password;
 			plugDoc.querySelector("#submit").click();
 		}
 
@@ -114,19 +114,19 @@ var initBotLoader = function() {
 			clearInterval(intervals.watchAPI);
 			timeouts.waitAPI = setTimeout(function() {
 				// Get previously stored configuration stored specifically for reload.
-				var config = getSettings("config");
+				var storedConfig = getSettings("storedConfig");
 
 				// Load any persisted settings while applying current override configuration, since this is a page reload.
 				console.log("Restarted: " + restarted);
 				var configOverride = {};
-				if (config) {
+				if (storedConfig) {
 					console.log("Found config:");
-					console.log(config);
+					console.log(storedConfig);
 
 					// Reset all configuration information EXCEPT for commands.
-					for(var k in config) {
+					for(var k in storedConfig) {
 						if (k == "commands") continue;
-						configOverride[k] = config[k];
+						configOverride[k] = storedConfig[k];
 					}
 
 					// Retain "restarted" setting from current scope.
@@ -215,7 +215,7 @@ var getSettings = function(name) {
 // Allows reloading browser without losing settings.
 var reloadBrowser = function() {
 	// Store current ChunkBot configuration specifically for reload.
-	storeSettings("config", bot.config);
+	storeSettings("storedConfig", bot.config);
 
 	// Perform reload.
 	restarted = true;

@@ -1,7 +1,6 @@
 .idea
 plug-source
-config.custom.js
 *.custom.js
 _*
-creds.js
+config.json
 links/

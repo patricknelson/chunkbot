@@ -22,7 +22,7 @@ var ChunkBot = {
      * Bot configuration.
      */
     config: {
-        // Please set these options via config.js.
+        // Please set these options via commands.js. TODO: Probably best to have these eventually setup via JSON file instead.
         rateLimit: 1500, // Limits bot output in milliseconds.
         autoAdminStaff: true, // Indicates that staff at manager level or higher are automatically admins of this bot.
         botIdent: "", // What the bot says on startup.
@@ -768,15 +768,15 @@ var ChunkBot = {
         this.addAdmin(this.config.botUser);
 
         // Load separately stored configuration.
-        var loadConfig = require("./config.js");
+        var loadCommands = require("./commands.js");
 		// TODO: Currently need to pass in object scope which will change when updated to properly use module pattern.
-        loadConfig(this);
+        loadCommands(this);
 
         // Load custom config.
         // TODO: Perform check here first to make sure file exists.
-        var loadCustConfig = require("./config.custom.js");
+        var loadCustCommands = require("./commands.custom.js");
 		// TODO: Currently need to pass in object scope which will change when updated to properly use module pattern.
-		loadCustConfig(this);
+		loadCustCommands(this);
 
 		// Override loaded configuration, if any globally set config exists.
 		for(var i in configOverride) this.config[i] = configOverride[i];
