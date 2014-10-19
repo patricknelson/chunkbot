@@ -14,7 +14,6 @@
  */
 
 
-
 // Define bot functionality.
 var ChunkBot = {
 
@@ -748,6 +747,9 @@ var ChunkBot = {
 
     /**
      * Initialize bot.
+	 *
+	 * TODO: This will be moved to a separate constructor and the params below will be reduced to ONLY "plugWin".
+	 * TODO: In testing, if the exported module has a constructor, it appears that the console.log() method IS available.
      */
     init: function(jQuery, console, API, configOverride) {
     	// Configure DIV now instance we've got access to an instance of jQuery.
@@ -756,7 +758,7 @@ var ChunkBot = {
 
     	// Configure console instance as well.
 		this.console = console;
-		
+
 		// And finally the Plug.DJ API object.
 		this.API = API;
 

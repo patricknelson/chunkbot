@@ -6,6 +6,15 @@ var config = require("./config.json");
 var reloadAfterMinutes = config.reloadAfterMinutes || 60; // Minutes in which this bot should be automatically reloaded (NOTE: Settings WILL be persisted!)
 
 
+// Hide main window, show dev tools and ensure that application is closed if this window gets closed.
+var mainWin = gui.Window.get();
+mainWin.hide();
+mainWin.showDevTools();
+setInterval(function() {
+	if (!mainWin.isDevToolsOpen()) process.exit();
+}, 500);
+
+
 // TODO: New bot loader under construction.
 var Loader = require("./loader.js");
 var loader = new Loader(config.roomURL, config.email, config.password);
@@ -15,15 +24,6 @@ loader.on("loaded", function() {
 	// TODO: Use loader.getPlugWin() to get reference to plug.dj window and document objects.
 });
 loader.load();
-
-
-// Hide main window, show dev tools and ensure that application is closed if this window gets closed.
-var mainWin = gui.Window.get();
-mainWin.hide();
-mainWin.showDevTools();
-setInterval(function() {
-	if (!mainWin.isDevToolsOpen()) process.exit();
-}, 500);
 
 
 // Plug window variables.
@@ -190,7 +190,7 @@ var initBotLoader = function() {
 
 // Just a shortcut to help with refactoring from old user script.
 var getAPI = function() {
-	if (typeof plugWin != "undefined" && plugWin.API.getUser() && plugWin.API.getUser().username) return plugWin.API;
+	if (typeof plugWin != "undefined" && plugWin.API && plugWin.API.getUser() && plugWin.API.getUser().username) return plugWin.API;
 	return false;
 };
 
