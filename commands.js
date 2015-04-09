@@ -84,9 +84,12 @@ module.exports = function(ChunkBot) {
 		}
 	}).addCommand({
 		text: /.*\bbot\b.*\b(lame|poop|emoji-1f4a9)\b.*/ig,
-		title: "bot dance",
+		title: "bot lame",
 		callback: function(data, matches) {
-			if (!ChunkBot.isAdmin(data.from) || true) ChunkBot.say(["Nope.", "No.", "Heh, nah.", "That's alright."], 8);
+			if (!ChunkBot.isAdmin(data.from)) {
+				ChunkBot.sayRandom(["Nope.", "No.", "Heh, nah.", "That's alright."], 8);
+				return;
+			}
 
 			if (ChunkBot.vote(-1)) {
 				ChunkBot.sayRandom([
