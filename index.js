@@ -210,7 +210,7 @@ var getSettings = function(name) {
 // Allows reloading browser without losing settings.
 var reloadBrowser = function() {
 	// Store current ChunkBot configuration specifically for reload.
-	storeSettings("storedConfig", bot.config);
+	if (bot) storeSettings("storedConfig", bot.config);
 
 	// Perform reload.
 	restarted = true;
