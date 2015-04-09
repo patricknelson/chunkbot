@@ -144,6 +144,11 @@ module.exports = function(ChunkBot) {
 			// Output generated message.
 			ChunkBot.say(messageParts.join(" :zap: "));
 		}
+	}).addCommand({
+		text: /bot points?/i,
+		callback: function(data) {
+			ChunkBot.say("@" + data.from + ", I have " + ChunkBot.getPoints() + " points.");
+		}
 	});
 
 
@@ -244,6 +249,10 @@ module.exports = function(ChunkBot) {
 		callback: function(data) {
 			// Only respond to admin
 			if (!ChunkBot.isAdmin(data.from)) return;
+
+			// TODO: Temporarily disabled (creates feedback loop).
+			ChunkBot.say("chunk_split() disabled this command since I'm a worthless broken robot. Instead, he makes me say this now.");
+			return;
 
 			// Build list of all commands currently available.
 			var availCommands = [];

@@ -745,6 +745,14 @@ var ChunkBot = {
 	},
 
 
+	/**
+	 * To access the configured Plug.DJ API object.
+	 */
+	getPoints: function() {
+		return  this.jQuery(".points").text().trim();
+	},
+
+
     /**
      * Initialize bot.
 	 *
