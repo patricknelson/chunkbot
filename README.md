@@ -3,13 +3,21 @@ ChunkBot
 
 **A node.js based Plug.dj bot.**
 
+
+
 A chat and moderation bot for Plug.dj that runs isolated entirely in node.js. Even though the bot runs in node.js, it is still able to use primarily the published API's by proxy of utilizing the "node-webkit" module along with some and other reasonably simple manual tweaks to facilitate non-API based functionality.
+
+---
+
+**Note:** This bot was abandoned years ago since it was started not long before Plug.DJ went down in 2015. Since then, Plug.DJ has recovered, however I no longer use the site and have decided to abandon this project.
+
+---
 
 **Documentation Under Construction**
 
 This has just been converted from a user-script + external script combination, so more documentation on setup/configuration is coming soon. Also, a lot of refactoring still needs to be done in order to make the code more organized and oriented toward the standard node.js modular design pattern. 
 
-##Configuration##
+## Configuration
 
 More detailed instructions coming soon.
 
@@ -25,7 +33,7 @@ Since plug.dj has a client-side JavaScript API, it has to run in its own browser
 Chrome is no longer needed! This automated reload/recovery process has been facilitated now via the primary `index.js` file (running in node-webkit) which supercedes the old Tampermonkey user script (formerly `bot.user.js` which ran in the browser).
 
 
-## Example Commands ##
+## Example Commands
 
 **WARNING:** Since the architecture of this system just changed to using node.js, this command syntax will likely change soon.
 
